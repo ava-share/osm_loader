@@ -1,9 +1,30 @@
 #!/usr/bin/env python3
-"""Simple ROS 2 node that downloads small OpenStreetMap extracts."""
+"""ROS 2 node for downloading OpenStreetMap extracts via Overpass API.
+
+This node supports three modes:
+1. 'current': Downloads map based on robot's current pose from /current_pose topic
+2. 'place': Downloads map for a geocoded location string
+3. 'file': Copies an existing OSM file to the output directory
+
+Optionally launches a visualization window showing the downloaded map with detailed
+road network information including speed limits, lanes, traffic signals, and more.
+
+Parameters:
+    mode (str): Download mode - 'current', 'place', or 'file' (default: 'current')
+    location_string (str): Location to geocode (for 'place' mode)
+    osm_path (str): Path to existing OSM file (for 'file' mode)
+    output_dir (str): Directory to save maps (default: ~/maps)
+    visualize (bool): Auto-launch visualizer after download (default: true)
+
+Example:
+    ros2 run map_fetcher map_fetcher_node --ros-args -p mode:=place \
+        -p location_string:="College Station, TX, USA"
+"""
 from __future__ import annotations
 
 import math
 from pathlib import Path
+import subprocess
 from typing import Optional
 
 import requests
@@ -22,6 +43,7 @@ class MapFetcherNode(Node):
         self.declare_parameter("location_string", "")
         self.declare_parameter("osm_path", "")
         self.declare_parameter("output_dir", str(Path.home() / "maps"))
+        self.declare_parameter("visualize", True)
         self.output_dir = Path(self.get_parameter("output_dir").get_parameter_value().string_value)
         self.mode = self.get_parameter("mode").get_parameter_value().string_value
         self.location_string = self.get_parameter("location_string").get_parameter_value().string_value
@@ -44,7 +66,10 @@ class MapFetcherNode(Node):
                 return
             lat = self.latest_pose.pose.position.y
             lon = self.latest_pose.pose.position.x
-            if self.fetch_and_store(lat, lon, "current_location.osm"):
+            filename = "current_location.osm"
+            if self.fetch_and_store(lat, lon, filename):
+                if self.get_parameter("visualize").get_parameter_value().bool_value:
+                    self.launch_visualizer(self.output_dir / filename)
                 self.completed = True
                 self.timer.cancel()
         elif self.mode == "place":
@@ -53,7 +78,10 @@ class MapFetcherNode(Node):
                 return
             lat, lon = self.geocode(self.location_string)
             if lat and lon:
-                if self.fetch_and_store(lat, lon, f"{self.location_string.replace(' ', '_')}.osm"):
+                filename = f"{self.location_string.replace(' ', '_')}.osm"
+                if self.fetch_and_store(lat, lon, filename):
+                    if self.get_parameter("visualize").get_parameter_value().bool_value:
+                        self.launch_visualizer(self.output_dir / filename)
                     self.completed = True
                     self.timer.cancel()
         elif self.mode == "file":
@@ -63,6 +91,8 @@ class MapFetcherNode(Node):
             target = self.output_dir / self.osm_path.name
             target.write_bytes(self.osm_path.read_bytes())
             self.publisher.publish(String(data=f"Copied {self.osm_path} to {target}"))
+            if self.get_parameter("visualize").get_parameter_value().bool_value:
+                self.launch_visualizer(target)
             self.completed = True
             self.timer.cancel()
         else:
@@ -108,6 +138,14 @@ class MapFetcherNode(Node):
         dest.write_text(resp.text)
         self.publisher.publish(String(data=f"Saved map to {dest}"))
         return True
+
+    def launch_visualizer(self, osm_file: Path) -> None:
+        """Launch the visualizer node in a separate process."""
+        self.get_logger().info('Launching visualizer...')
+        subprocess.Popen([
+            'ros2', 'run', 'map_fetcher', 'osm_visualizer_node',
+            '--ros-args', '-p', f'osm_file:={osm_file}'
+        ])
 
 
 def main(args=None) -> None:
