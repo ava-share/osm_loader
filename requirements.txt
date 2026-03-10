@@ -1,0 +1,10 @@
+numpy<2
+pandas>=2.2,<2.3
+geopandas>=1.0,<1.1
+osmnx>=2.0,<2.1
+networkx>=3.2,<3.4
+shapely>=2.0,<2.1
+pyproj>=3.6,<3.7
+pyogrio>=0.11,<0.12
+requests>=2.32,<3
+folium>=0.20,<0.21
