@@ -1,4 +1,4 @@
-## Route-Aware OpenStreetMap Analysis
+## Waypoints-based OpenStreetMap Route Analysis
 
 This repository provides a **single, self-contained Python workflow** for doing route-aware analysis on OpenStreetMap (OSM) data.
 
