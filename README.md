@@ -1,85 +1,73 @@
-## Waypoints-based OpenStreetMap Route Analysis
+## OpenStreetMap (OSM) Route Analysis + Route Planning
 
-This repository provides a **single, self-contained Python workflow** for doing route-aware analysis on OpenStreetMap (OSM) data.
+This repository contains a small set of Python tools for building and analyzing routes on OpenStreetMap:
 
-Given a start point, optional intermediate waypoints, and an end point, the script will:
-
-- **Build a drivable route** through the given points using OSM street networks.
-- **Extract traversed edge attributes** (e.g., highway type, lanes, maxspeed, sidewalks, cycleways).
-- **Construct a metric corridor** around the route and **query nearby context / safety features** (signals, crossings, schools, hospitals, parking, etc.).
-- **Compute summary statistics** about geometry, speed limits, intersections, sidewalks, and corridor context.
-- **Export ready-to-use outputs** as CSV/JSON/GeoJSON and an optional interactive HTML map.
-
-All core logic lives in `osm_route_analysis.py`.
+- **`osm_route_analysis.py`**: end-to-end **route + corridor analysis** (exports CSV/JSON/GeoJSON + optional maps)
+- **`dc_point_picker.py`**: a local web map to **pick START/END points in Washington, DC** and save them to JSON
+- **`route_planner.py`**: downloads a network, generates **K candidate routes**, scores them by **route complexity**, and exports a comparison map + JSON
+- **`route_complexity.py`**: computes a single **route complexity report** from `osm_route_analysis.py` outputs
 
 ---
 
 ## Installation
 
-**Python version**: Recommended Python 3.10+ with a fresh virtual environment.
+- **Python**: 3.10+ recommended
 
-1. **Create and activate a virtual environment** (example with `python` pointing to your desired version):
+Create and activate a virtual environment, then install dependencies:
 
 ```bash
 python -m venv .venv
 source .venv/bin/activate  # macOS / Linux
 # .venv\Scripts\activate   # Windows PowerShell
-```
-
-2. **Install the required dependencies** (binary wheels are important for geopandas / shapely / pyproj):
-
-```bash
 pip install -r requirements.txt
 ```
 
-If imports fail at runtime, the script will raise a clear error pointing back to `requirements.txt`.
+Notes:
+
+- **`folium` is optional**. If it’s not installed, the scripts will still run but some HTML map outputs will be skipped.
 
 ---
 
-## Usage
+## Quick start (DC workflow)
 
-The main entry point is the `main` function in `osm_route_analysis.py`, which is also invoked when the script is run directly.
+### 1. Pick START/END points (DC)
 
-### 1. Configure the route
-
-At the top of `osm_route_analysis.py` you can edit:
-
-- `START`: `(lat, lon)` tuple for the origin.
-- `MIDDLE`: list of `(lat, lon)` waypoints (can be an empty list).
-- `END`: `(lat, lon)` tuple for the destination.
-- `CORRIDOR_WIDTH_M`: corridor half-width in meters around the route used for querying nearby features.
-- `OUTPUT_DIR`: directory where outputs will be written (default `output/`).
-
-These are simple Python variables, so you can either:
-
-- Edit them directly in the file and run the script as a one-off analysis, or
-- Import `main` from another Python module and call it with your own parameters.
-
-### 2. Run from the command line
-
-After activating your virtual environment and configuring the inputs:
+This opens a local web map and saves your selection to `output/selected_points.json`.
 
 ```bash
-python osm_route_analysis.py
+python dc_point_picker.py
 ```
 
-By default this will:
+Controls (in the opened map):
 
-- Download a drivable OSM network for the search area.
-- Snap your input points to the nearest network nodes.
-- Build a route (using `travel_time`, falling back to `length` if needed).
-- Query corridor features around the route.
-- Summarize route geometry, attributes, and corridor context.
-- Export files to `OUTPUT_DIR`.
+- **S**: set **START** at the mouse cursor
+- **E**: set **END** at the mouse cursor
+- **Enter** (or on-screen ENTER button): save
 
-You can also call the workflow programmatically, e.g.:
+### 2. Compare K candidate routes and pick the easiest
+
+This loads `output/selected_points.json`, generates candidate routes, scores each route, writes JSON summaries, and creates `output/route_planning_map.html`.
+
+```bash
+python route_planner.py --k 3 --output-dir output
+```
+
+Outputs from this step (in `output/`):
+
+- **`route_planning_map.html`**: candidate routes + highlighted “best” (lowest score)
+- **`routes_comparison.json`**: minimal comparison + selected best route id
+- **`routes_complexity.json`**: detailed per-route complexity metrics
+
+### 3. (Optional) Run full corridor analysis on a specific route
+
+For full exports (segments CSV, corridor features, GeoJSON layers, etc.), run the core analysis programmatically:
 
 ```python
 from osm_route_analysis import main
 
 result = main(
     start=(lat1, lon1),
-    middle=[(lat_mid, lon_mid)],
+    middle=[],
     end=(lat2, lon2),
     corridor_width_m=30.0,
     output_dir="output",
@@ -88,45 +76,57 @@ result = main(
 )
 ```
 
-The returned `result` dictionary includes the route summary, GeoDataFrames, export paths, and a human-readable text report.
+---
+
+## Core analysis (`osm_route_analysis.py`)
+
+### What it does
+
+Given **start**, optional **waypoints**, and **end**, the workflow will:
+
+- **Build a drivable route** using OSMnx + NetworkX shortest paths (prefers `travel_time`, falls back to `length`).
+- **Extract per-edge attributes** (e.g., `highway`, `lanes`, `maxspeed`, `sidewalk`, `cycleway`) plus derived metrics.
+- **Build a corridor buffer** around the route and query nearby context/safety features (signals, crossings, schools, hospitals, parking, etc.).
+- **Export** CSV/JSON/GeoJSON, and (if `folium` is installed) HTML maps.
+
+### Outputs (written to `output_dir`, default `output/`)
+
+- **`route_segments.csv`**: ordered route segments (geometry as WKT) with OSM attributes + derived fields (bearing, parsed speed, oneway, etc.).
+- **`corridor_features.csv`**: corridor features as a flat table (includes `feature_type`, `feature_group`, and representative `latitude`/`longitude`).
+- **`route_summary.json`**: structured JSON summary with:
+  - Inputs + snapping info
+  - Route geometry/topology metrics (length, intersections, sinuosity, leg summaries)
+  - Attribute summaries (speed limits, lanes, sidewalks, oneway proportions, bike infra)
+  - Corridor feature summaries (traffic controls, landuse coverage, nearby schools/hospitals, etc.)
+  - Optional Overpass turn-restriction counts (or a recorded failure message)
+- **`route_features.geojson`**: combined layer containing route edges, route line, corridor polygon, and corridor features.
+- **`route_map.html`** (optional): interactive map (route + corridor features).
+- **`route_map_enhanced.html`** (optional): enhanced map using exported files (segment difficulty coloring + a floating complexity panel when available).
 
 ---
 
-## Outputs
+## Route complexity (`route_complexity.py`)
 
-By default, the workflow writes to `OUTPUT_DIR` (default `output/`) the following:
+This script computes a single `route_complexity.json` from `osm_route_analysis.py` outputs.
 
-- **`route_segments.csv`**: ordered route segments with geometry (WKT) and a rich set of OSM attributes plus derived metrics (bearing, length, parsed maxspeed, lanes, etc.).
-- **`route_summary.json`**: structured JSON with:
-  - Input points and corridor configuration.
-  - Snap information and search area details.
-  - Route geometry/topology metrics (length, intersections, sinuosity, leg summaries).
-  - Edge attribute summaries (speed limits, lane distributions, sidewalks, oneway proportions).
-  - Corridor feature summaries (traffic controls, land use, nearby schools/hospitals, etc.).
-  - Optional turn-restriction statistics from Overpass.
-- **`route_features.geojson`**: combined GeoJSON layer including:
-  - Route edges, the route centerline, and the corridor polygon.
-  - All queried corridor features, with a standardized `feature_type` and `feature_group`.
-- **`route_map.html`** (optional): interactive Folium web map with:
-  - Route polyline.
-  - Corridor features symbolized by type (signals, crossings, transit stops, schools, hospitals, parking, etc.).
-  - Start / end / waypoint markers and a layer control.
+Default usage (expects outputs in `results/`, but will fall back to `output/` if `results/` doesn’t exist):
 
-These outputs are designed to be easily consumed by GIS tools (e.g., QGIS), notebooks (via GeoPandas), or downstream analysis scripts.
+```bash
+python route_complexity.py --results-dir output
+```
+
+It uses these components:
+
+- intersection density (per km)
+- sinuosity proxy
+- traffic signal density (per km)
+- crossing density (per km)
 
 ---
 
-## Turn Restrictions (Optional)
+## Notes and limitations
 
-If `query_turn_restrictions=True` in `main`, the script will query the Overpass API for turn-restriction relations in the corridor bounding box and add a small summary of restriction counts into the JSON summary.
-
-If the Overpass request fails or times out, the error is recorded in the summary instead of failing the entire workflow.
-
----
-
-## Notes and Limitations
-
-- OSM data coverage and tagging quality can vary by region; missing tags (e.g., `maxspeed`, `sidewalk`) are explicitly tracked in derived notes and summaries.
-- For very long routes or large corridors, network download and corridor queries can be slow and memory-intensive.
-- The script is intentionally written as a **single-file workflow** to make it easy to reuse in notebooks or other projects—feel free to adapt / modularize for your own use cases.
+- **OSM tagging varies by region**; missing tags (e.g., `maxspeed`, `sidewalk`) are expected and tracked in summaries.
+- **Large routes/corridors can be slow** (network download + corridor queries).
+- Overpass turn-restriction queries can fail/time out; failures are recorded in the JSON instead of aborting the run.
 

@@ -12,6 +12,7 @@ This script:
 
 from __future__ import annotations
 
+import csv
 import json
 import math
 import re
@@ -26,21 +27,22 @@ try:
     import pandas as pd
     import requests
 except Exception as exc:
+    req_path = Path(__file__).with_name("requirements.txt")
     raise RuntimeError(
         "Failed to import required geospatial dependencies. "
-        "Create a virtual environment and install /Users/ylin/Research/osm/requirements.txt "
-        "to ensure compatible binary wheels."
+        f"Create a virtual environment and install dependencies from {req_path} "
+        "(e.g. `pip install -r requirements.txt`)."
     ) from exc
 from shapely.geometry import LineString, Point, Polygon
 
-
+'''
 # ---------------------------------------------------------------------------
 # Input parameters (edit these for your route)
 # ---------------------------------------------------------------------------
 START: Tuple[float, float] = (30.527044, -96.847341)  # (lat, lon)
 MIDDLE: List[Tuple[float, float]] = [(30.527044, -96.847341)]
 END: Tuple[float, float] = (30.550935, -96.718751)  # (lat, lon)
-
+'''
 
 # Corridor width in meters for nearby feature extraction
 CORRIDOR_WIDTH_M: float = 30.0
@@ -1046,6 +1048,213 @@ def _export_optional_map(
     return True
 
 
+def _parse_linestring_wkt(linestring_wkt: str) -> List[Tuple[float, float]]:
+    """
+    Minimal WKT LINESTRING parser returning [(lat, lon), ...].
+    Uses only standard library for the enhanced visualization.
+    """
+    text = (linestring_wkt or "").strip()
+    if not text.upper().startswith("LINESTRING"):
+        return []
+    start = text.find("(")
+    end = text.rfind(")")
+    if start < 0 or end < 0 or end <= start:
+        return []
+    body = text[start + 1 : end].strip()
+    if not body:
+        return []
+    coords: List[Tuple[float, float]] = []
+    for part in body.split(","):
+        items = part.strip().split()
+        if len(items) < 2:
+            continue
+        try:
+            lon = float(items[0])
+            lat = float(items[1])
+        except ValueError:
+            continue
+        coords.append((lat, lon))
+    return coords
+
+
+def _haversine_m(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
+    r = 6371000.0
+    phi1 = math.radians(lat1)
+    phi2 = math.radians(lat2)
+    dphi = math.radians(lat2 - lat1)
+    dlambda = math.radians(lon2 - lon1)
+    a = math.sin(dphi / 2.0) ** 2 + math.cos(phi1) * math.cos(phi2) * math.sin(dlambda / 2.0) ** 2
+    return 2.0 * r * math.asin(min(1.0, math.sqrt(a)))
+
+
+def _segment_color(segment_score: float) -> str:
+    if segment_score < 1.0:
+        return "green"
+    if segment_score < 2.0:
+        return "yellow"
+    return "red"
+
+
+def _export_enhanced_map(output_dir: Path, input_points: Sequence[Tuple[float, float]]) -> bool:
+    """
+    Create an enhanced map using exported CSV/JSON outputs.
+
+    Keeps the original map export intact; this is an additional visualization step.
+    """
+    try:
+        import folium  # optional dependency
+    except ImportError:
+        return False
+
+    segments_csv = output_dir / "route_segments.csv"
+    corridor_csv = output_dir / "corridor_features.csv"
+    complexity_json = output_dir / "route_complexity.json"
+    out_html = output_dir / "route_map_enhanced.html"
+
+    if not segments_csv.exists():
+        return False
+
+    center_lat, center_lon = input_points[0]
+    fmap = folium.Map(location=[center_lat, center_lon], zoom_start=13, tiles="cartodbpositron")
+
+    seg_group = folium.FeatureGroup(name="Route difficulty (segments)", show=True)
+    all_points: List[Tuple[float, float]] = []
+
+    with segments_csv.open("r", encoding="utf-8", newline="") as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            wkt = (row.get("geometry") or "").strip()
+            pts = _parse_linestring_wkt(wkt)
+            if len(pts) < 2:
+                continue
+
+            try:
+                length_m = float(row.get("segment_length_m") or row.get("length") or 0.0)
+            except ValueError:
+                length_m = 0.0
+
+            (lat1, lon1), (lat2, lon2) = pts[0], pts[-1]
+            straight_m = _haversine_m(lat1, lon1, lat2, lon2)
+            sinuosity = (length_m / straight_m) if (length_m > 0 and straight_m > 0) else 1.0
+
+            # Approximate per-segment intersection density as "one intersection per segment end"
+            # expressed in intersections per km of segment length.
+            intersection_density = (1000.0 / length_m) if length_m > 0 else 0.0
+
+            segment_score = sinuosity + intersection_density
+            color = _segment_color(segment_score)
+
+            folium.PolyLine(
+                locations=pts,
+                color=color,
+                weight=6,
+                opacity=0.9,
+                tooltip=f"segment_score={segment_score:.3f} (sinuosity={sinuosity:.3f}, intersection_density={intersection_density:.3f})",
+            ).add_to(seg_group)
+            all_points.extend(pts)
+
+    seg_group.add_to(fmap)
+
+    # Intersection / Crossing markers from exported corridor_features.csv
+    if corridor_csv.exists():
+        signal_group = folium.FeatureGroup(name="Traffic signals", show=True)
+        crossing_group = folium.FeatureGroup(name="Crossings", show=True)
+
+        with corridor_csv.open("r", encoding="utf-8", newline="") as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                ftype = (row.get("feature_type") or "").strip().lower()
+                try:
+                    lat = float(row.get("latitude") or row.get("lat") or "")
+                    lon = float(row.get("longitude") or row.get("lon") or "")
+                except ValueError:
+                    continue
+
+                popup_html = (
+                    f"<b>feature_type</b>: {ftype}<br/>"
+                    f"<b>latitude</b>: {lat:.6f}<br/>"
+                    f"<b>longitude</b>: {lon:.6f}"
+                )
+
+                if ftype == "traffic_signal":
+                    folium.Marker(
+                        location=[lat, lon],
+                        icon=folium.Icon(color="red", icon="info-sign"),
+                        popup=folium.Popup(popup_html, max_width=300),
+                    ).add_to(signal_group)
+                elif ftype == "crossing":
+                    folium.Marker(
+                        location=[lat, lon],
+                        icon=folium.Icon(color="blue", icon="info-sign"),
+                        popup=folium.Popup(popup_html, max_width=300),
+                    ).add_to(crossing_group)
+
+        signal_group.add_to(fmap)
+        crossing_group.add_to(fmap)
+
+    for i, (lat, lon) in enumerate(input_points):
+        label = "Start" if i == 0 else ("End" if i == len(input_points) - 1 else f"Waypoint {i}")
+        folium.Marker([lat, lon], tooltip=label).add_to(fmap)
+
+    # Complexity summary floating panel (top-right)
+    panel_rows: List[Tuple[str, str]] = []
+    if complexity_json.exists():
+        try:
+            with complexity_json.open("r", encoding="utf-8") as f:
+                comp = json.load(f)
+        except Exception:
+            comp = {}
+
+        def _fmt_num(v: Any, nd: int = 3) -> str:
+            try:
+                return f"{float(v):.{nd}f}"
+            except Exception:
+                return "n/a"
+
+        panel_rows = [
+            ("Route Length (km)", _fmt_num(comp.get("route_length_km"), 3)),
+            ("Intersection Density", _fmt_num(comp.get("intersection_density"), 3)),
+            ("Sinuosity", _fmt_num(comp.get("sinuosity"), 3)),
+            ("Traffic Signal Density", _fmt_num(comp.get("traffic_signal_density"), 3)),
+            ("Crossing Density", _fmt_num(comp.get("crossing_density"), 3)),
+            ("Complexity Score", _fmt_num(comp.get("complexity_score"), 3)),
+            ("Classification", str(comp.get("classification") or "n/a")),
+        ]
+    else:
+        panel_rows = [("route_complexity.json", "not found")]
+
+    rows_html = "".join(f"<tr><td>{k}</td><td style='text-align:right;'><b>{v}</b></td></tr>" for k, v in panel_rows)
+    panel_html = f"""
+    <div style="
+        position: fixed;
+        top: 12px;
+        right: 12px;
+        z-index: 9999;
+        background: rgba(255, 255, 255, 0.95);
+        border: 1px solid #bbb;
+        border-radius: 8px;
+        padding: 10px 12px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+        font-family: Arial, sans-serif;
+        font-size: 12px;
+        min-width: 260px;
+    ">
+      <div style="font-size: 14px; font-weight: 700; margin-bottom: 6px;">Route Complexity Report</div>
+      <table style="width:100%; border-collapse: collapse;">
+        {rows_html}
+      </table>
+    </div>
+    """
+    fmap.get_root().html.add_child(folium.Element(panel_html))
+
+    if all_points:
+        fmap.fit_bounds(all_points)
+
+    folium.LayerControl(collapsed=False).add_to(fmap)
+    fmap.save(str(out_html))
+    return True
+
+
 def export_outputs(
     route_edges_gdf: gpd.GeoDataFrame,
     route_summary: Dict[str, Any],
@@ -1063,6 +1272,7 @@ def export_outputs(
     out_dir.mkdir(parents=True, exist_ok=True)
 
     segments_path = out_dir / "route_segments.csv"
+    corridor_csv_path = out_dir / "corridor_features.csv"
     summary_path = out_dir / "route_summary.json"
     features_path = out_dir / "route_features.geojson"
     map_path = out_dir / "route_map.html"
@@ -1074,6 +1284,27 @@ def export_outputs(
             segments_df[col] = segments_df[col].apply(_normalize_value)
     segments_df.to_csv(segments_path, index=False)
 
+    # Export corridor features for visualization (CSV) with lat/lon for markers
+    corridor_df = corridor_features_gdf.copy()
+    if corridor_df.empty:
+        pd.DataFrame(columns=["feature_type", "feature_group", "latitude", "longitude", "geometry"]).to_csv(
+            corridor_csv_path, index=False
+        )
+    else:
+        if corridor_df.crs is None:
+            corridor_df = corridor_df.set_crs("EPSG:4326")
+        else:
+            corridor_df = corridor_df.to_crs("EPSG:4326")
+
+        geom_series = corridor_df.geometry
+        rep_points = geom_series.apply(lambda g: (g if (g is not None and g.geom_type == "Point") else (g.representative_point() if g is not None else None)))
+        corridor_df["latitude"] = rep_points.apply(lambda p: (p.y if p is not None else None))
+        corridor_df["longitude"] = rep_points.apply(lambda p: (p.x if p is not None else None))
+        corridor_df["geometry"] = corridor_df.geometry.apply(lambda g: g.wkt if g is not None else None)
+
+        cols = [c for c in ["feature_type", "feature_group", "latitude", "longitude", "geometry"] if c in corridor_df.columns]
+        corridor_df[cols].to_csv(corridor_csv_path, index=False)
+
     with open(summary_path, "w", encoding="utf-8") as fp:
         json.dump(_jsonify_records(route_summary), fp, ensure_ascii=True, indent=2, sort_keys=True)
 
@@ -1084,6 +1315,7 @@ def export_outputs(
     exported_map = False
     if export_map:
         exported_map = _export_optional_map(route_line, corridor_features_gdf, map_path, input_points=input_points)
+        _export_enhanced_map(out_dir, input_points=input_points)
 
     return {
         "route_segments_csv": str(segments_path),
