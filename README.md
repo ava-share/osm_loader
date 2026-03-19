@@ -1,132 +1,158 @@
-## OpenStreetMap (OSM) Route Analysis + Route Planning
+## Route-Aware OpenStreetMap Analysis
 
-This repository contains a small set of Python tools for building and analyzing routes on OpenStreetMap:
+This repository contains a single workflow script, `osm_route_analysis.py`, for predefined multi-waypoint route analysis using OpenStreetMap (OSM).
 
-- **`osm_route_analysis.py`**: end-to-end **route + corridor analysis** (exports CSV/JSON/GeoJSON + optional maps)
-- **`dc_point_picker.py`**: a local web map to **pick START/END points in Washington, DC** and save them to JSON
-- **`route_planner.py`**: downloads a network, generates **K candidate routes**, scores them by **route complexity**, and exports a comparison map + JSON
-- **`route_complexity.py`**: computes a single **route complexity report** from `osm_route_analysis.py` outputs
+Current behavior:
+
+- Uses predefined routes (`start + 3 waypoints + end`) from `ROUTES`.
+- Prompts the user to select route `1`, `2`, or `3`.
+- Builds a drivable route via waypoints.
+- Extracts edge-level OSM attributes and derived metrics.
+- Queries corridor features and builds explicit points of interest.
+- Exports one JSON file per selected route.
+- Optionally exports one interactive Folium HTML map.
 
 ---
 
 ## Installation
 
-- **Python**: 3.10+ recommended
-
-Create and activate a virtual environment, then install dependencies:
+Python 3.10+ is recommended.
 
 ```bash
 python -m venv .venv
-source .venv/bin/activate  # macOS / Linux
-# .venv\Scripts\activate   # Windows PowerShell
+```
+
+Activate environment:
+
+- Windows PowerShell:
+
+```powershell
+.venv\Scripts\Activate.ps1
+```
+
+- macOS / Linux:
+
+```bash
+source .venv/bin/activate
+```
+
+Install dependencies:
+
+```bash
 pip install -r requirements.txt
 ```
 
-Notes:
-
-- **`folium` is optional**. If it’s not installed, the scripts will still run but some HTML map outputs will be skipped.
-
 ---
 
-## Quick start (DC workflow)
+## Usage
 
-### 1. Pick START/END points (DC)
-
-This opens a local web map and saves your selection to `output/selected_points.json`.
+Run:
 
 ```bash
-python dc_point_picker.py
+python osm_route_analysis.py
 ```
 
-Controls (in the opened map):
+You will be prompted:
 
-- **S**: set **START** at the mouse cursor
-- **E**: set **END** at the mouse cursor
-- **Enter** (or on-screen ENTER button): save
-
-### 2. Compare K candidate routes and pick the easiest
-
-This loads `output/selected_points.json`, generates candidate routes, scores each route, writes JSON summaries, and creates `output/route_planning_map.html`.
-
-```bash
-python route_planner.py --k 3 --output-dir output
+```text
+Available routes:
+1: FM 1362 to FM 2000
+2: FM 908 to CR 316
+3: US 190 to FM 2038 to FM 244
+Select route (1, 2, or 3):
 ```
 
-Outputs from this step (in `output/`):
-
-- **`route_planning_map.html`**: candidate routes + highlighted “best” (lowest score)
-- **`routes_comparison.json`**: minimal comparison + selected best route id
-- **`routes_complexity.json`**: detailed per-route complexity metrics
-
-### 3. (Optional) Run full corridor analysis on a specific route
-
-For full exports (segments CSV, corridor features, GeoJSON layers, etc.), run the core analysis programmatically:
-
-```python
-from osm_route_analysis import main
-
-result = main(
-    start=(lat1, lon1),
-    middle=[],
-    end=(lat2, lon2),
-    corridor_width_m=30.0,
-    output_dir="output",
-    query_turn_restrictions=True,
-    export_map=True,
-)
-```
+The script then runs end-to-end and writes output files in `output/`.
 
 ---
 
-## Core analysis (`osm_route_analysis.py`)
+## Configurable Parameters
 
-### What it does
+At the top of `osm_route_analysis.py`:
 
-Given **start**, optional **waypoints**, and **end**, the workflow will:
-
-- **Build a drivable route** using OSMnx + NetworkX shortest paths (prefers `travel_time`, falls back to `length`).
-- **Extract per-edge attributes** (e.g., `highway`, `lanes`, `maxspeed`, `sidewalk`, `cycleway`) plus derived metrics.
-- **Build a corridor buffer** around the route and query nearby context/safety features (signals, crossings, schools, hospitals, parking, etc.).
-- **Export** CSV/JSON/GeoJSON, and (if `folium` is installed) HTML maps.
-
-### Outputs (written to `output_dir`, default `output/`)
-
-- **`route_segments.csv`**: ordered route segments (geometry as WKT) with OSM attributes + derived fields (bearing, parsed speed, oneway, etc.).
-- **`corridor_features.csv`**: corridor features as a flat table (includes `feature_type`, `feature_group`, and representative `latitude`/`longitude`).
-- **`route_summary.json`**: structured JSON summary with:
-  - Inputs + snapping info
-  - Route geometry/topology metrics (length, intersections, sinuosity, leg summaries)
-  - Attribute summaries (speed limits, lanes, sidewalks, oneway proportions, bike infra)
-  - Corridor feature summaries (traffic controls, landuse coverage, nearby schools/hospitals, etc.)
-  - Optional Overpass turn-restriction counts (or a recorded failure message)
-- **`route_features.geojson`**: combined layer containing route edges, route line, corridor polygon, and corridor features.
-- **`route_map.html`** (optional): interactive map (route + corridor features).
-- **`route_map_enhanced.html`** (optional): enhanced map using exported files (segment difficulty coloring + a floating complexity panel when available).
+- `ROUTES`: predefined route definitions
+- `CORRIDOR_WIDTH_M`: corridor width in meters (default `30.0`)
+- `OUTPUT_DIR`: output folder (default `output`)
 
 ---
 
-## Route complexity (`route_complexity.py`)
+## Output Files
 
-This script computes a single `route_complexity.json` from `osm_route_analysis.py` outputs.
+For each selected route:
 
-Default usage (expects outputs in `results/`, but will fall back to `output/` if `results/` doesn’t exist):
+- `output/<route_name>.json`
+- `output/<route_name>_map.html` (if Folium is installed)
 
-```bash
-python route_complexity.py --results-dir output
-```
-
-It uses these components:
-
-- intersection density (per km)
-- sinuosity proxy
-- traffic signal density (per km)
-- crossing density (per km)
+Route names are sanitized with underscores (for example: `FM_1362_to_FM_2000.json`).
 
 ---
 
-## Notes and limitations
+## JSON Structure
 
-- **OSM tagging varies by region**; missing tags (e.g., `maxspeed`, `sidewalk`) are expected and tracked in summaries.
-- **Large routes/corridors can be slow** (network download + corridor queries).
-- Overpass turn-restriction queries can fail/time out; failures are recorded in the JSON instead of aborting the run.
+Each route JSON includes:
 
+- `route_name`
+- `inputs`
+- `route_metrics`
+  - `length_km`
+  - `length_miles`
+  - `travel_time_min`
+- `points_of_interest`
+  - `intersections`
+  - `traffic_signals`
+  - `stop_signs`
+  - `crossings`
+  - `bike_lanes`
+- `edge_attributes`
+- `curvature_analysis`
+- `corridor_summary`
+- `snap_summary`
+- `route_geometry_topology`
+- `edge_attribute_summary`
+- `turn_restrictions`
+
+### Edge Attributes (per segment)
+
+Each entry in `edge_attributes` includes fields such as:
+
+- `segment_id`, `from_node`, `to_node`, `segment_length_m`
+- `bearing_deg`, `curvature_deg`, `curvature_class`
+- `primary_highway`, `oneway_bool`, `direction`
+- `lanes_count`, `maxspeed_kph`, `travel_time_s`
+- `lane_inference_source`, `lane_confidence`
+- `speed_inference_source`, `speed_confidence`
+- `major_interpreted_notes`
+
+### Inference and Confidence
+
+If direct OSM tags are missing:
+
+- `lanes_count` may be inferred from speed/highway type.
+- `maxspeed_kph` may be inferred from highway type.
+- Source and confidence are recorded in:
+  - `lane_inference_source`, `lane_confidence`
+  - `speed_inference_source`, `speed_confidence`
+
+Confidence values are bounded to `0.0` - `1.0`.
+
+---
+
+## Map Visualization
+
+The HTML map includes:
+
+- Route polyline.
+- Start (green), waypoints (blue), end (red) markers.
+- POI layers:
+  - traffic signals (red)
+  - stop signs (orange)
+  - crossings (purple)
+  - bike lanes (green)
+
+---
+
+## Reliability Notes
+
+- JSON export sanitizes `NaN` values to `null`.
+- Missing geometry/OSM fields are handled with safe fallbacks where implemented.
+- Turn restrictions are queried from Overpass when enabled; failures are captured in output instead of crashing the full run.

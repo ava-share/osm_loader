@@ -12,7 +12,6 @@ This script:
 
 from __future__ import annotations
 
-import csv
 import json
 import math
 import re
@@ -27,22 +26,50 @@ try:
     import pandas as pd
     import requests
 except Exception as exc:
-    req_path = Path(__file__).with_name("requirements.txt")
     raise RuntimeError(
         "Failed to import required geospatial dependencies. "
-        f"Create a virtual environment and install dependencies from {req_path} "
-        "(e.g. `pip install -r requirements.txt`)."
+        "Create a virtual environment and install /Users/ylin/Research/osm/requirements.txt "
+        "to ensure compatible binary wheels."
     ) from exc
 from shapely.geometry import LineString, Point, Polygon
 
-'''
+
 # ---------------------------------------------------------------------------
-# Input parameters (edit these for your route)
+# Input parameters (predefined routes)
 # ---------------------------------------------------------------------------
-START: Tuple[float, float] = (30.527044, -96.847341)  # (lat, lon)
-MIDDLE: List[Tuple[float, float]] = [(30.527044, -96.847341)]
-END: Tuple[float, float] = (30.550935, -96.718751)  # (lat, lon)
-'''
+ROUTES: Dict[str, Dict[str, Any]] = {
+    "1": {
+        "name": "FM 1362 to FM 2000",
+        "start": (30.5913233, -96.6204616),
+        "waypoints": [
+            (30.70138, -96.64029),
+            (30.69026, -96.66475),
+            (30.6208, -96.6866),
+        ],
+        "end": (30.553535, -96.677703),
+    },
+    "2": {
+        "name": "FM 908 to CR 316",
+        "start": (30.555226, -96.746941),
+        "waypoints": [
+            (30.554, -96.79427),
+            (30.5268, -96.8477),
+            (30.51229, -96.79985),
+        ],
+        "end": (30.4958, -96.74689),
+    },
+    "3": {
+        "name": "US 190 to FM 2038 to FM 244",
+        "start": (30.771487, -96.076427),
+        "waypoints": [
+            (30.7203, -96.0902),
+            (30.7185, -96.1589),
+            (30.7815, -96.2649),
+        ],
+        "end": (30.696641, -96.35882),
+    },
+}
+
 
 # Corridor width in meters for nearby feature extraction
 CORRIDOR_WIDTH_M: float = 30.0
@@ -76,10 +103,14 @@ ROUTE_EDGE_COLUMNS = [
 ]
 
 DEFAULT_CORRIDOR_TAGS: Dict[str, Any] = {
-    "highway": ["traffic_signals", "stop", "give_way", "crossing", "bus_stop", "mini_roundabout"],
+    "highway": ["traffic_signals", "stop", "give_way", "crossing", "bus_stop", "mini_roundabout", "cycleway"],
+    "crossing": True,
     "traffic_calming": True,
     "railway": ["level_crossing", "crossing"],
     "junction": ["roundabout"],
+    "cycleway": True,
+    "cycleway:left": True,
+    "cycleway:right": True,
     "barrier": True,
     "amenity": ["school", "hospital", "parking", "bus_station"],
     "public_transport": ["platform", "stop_position", "station"],
@@ -355,6 +386,70 @@ def _segment_bearing_deg(geometry: LineString) -> Optional[float]:
     return bearing
 
 
+def _bearing_delta_deg(b1: Optional[float], b2: Optional[float]) -> Optional[float]:
+    if b1 is None or b2 is None:
+        return None
+    curvature = abs(float(b2) - float(b1))
+    if curvature > 180.0:
+        curvature = 360.0 - curvature
+    return curvature
+
+
+def _curvature_class(curvature_deg: Optional[float]) -> Optional[str]:
+    if curvature_deg is None:
+        return None
+    if curvature_deg < 10.0:
+        return "straight"
+    if curvature_deg <= 45.0:
+        return "moderate"
+    return "sharp"
+
+
+def estimate_lanes(row: Dict[str, Any]) -> Tuple[int, str, float]:
+    lanes = _extract_int(row.get("lanes"))
+    if lanes is not None:
+        return lanes, "lanes_osm", 1.0
+
+    highway = row.get("primary_highway")
+    speed = row.get("maxspeed_kph")
+    oneway = row.get("oneway_bool")
+
+    if speed is not None:
+        if speed >= 90:
+            return (4 if not oneway else 2), "lanes_inferred_speed_high", 0.8
+        if speed >= 60:
+            return (2 if not oneway else 1), "lanes_inferred_speed_medium", 0.7
+        return 1, "lanes_inferred_speed_low", 0.6
+
+    mapping = {
+        "motorway": 4,
+        "trunk": 3,
+        "primary": 2,
+        "secondary": 2,
+        "tertiary": 2,
+        "residential": 1,
+    }
+
+    return mapping.get(highway, 2), "lanes_inferred_highway_fallback", 0.5
+
+
+def estimate_speed_kph(row: Dict[str, Any]) -> Tuple[float, str, float]:
+    speed = row.get("maxspeed_kph")
+    if speed is not None:
+        return speed, "speed_osm", 1.0
+
+    highway = row.get("primary_highway")
+    mapping = {
+        "motorway": 110,
+        "trunk": 100,
+        "primary": 90,
+        "secondary": 80,
+        "tertiary": 60,
+        "residential": 40,
+    }
+    return float(mapping.get(highway, 50)), "speed_inferred_highway", 0.6
+
+
 def _haversine_m(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
     radius = 6371000.0
     phi1 = math.radians(lat1)
@@ -429,23 +524,6 @@ def _primary_highway(value: Any) -> Optional[str]:
     return text
 
 
-def _edge_notes(row: Dict[str, Any]) -> str:
-    notes: List[str] = []
-    if _first_text(row.get("junction")) == "roundabout":
-        notes.append("roundabout")
-    if _first_text(row.get("bridge")) not in {None, "no"}:
-        notes.append("bridge")
-    if _first_text(row.get("tunnel")) not in {None, "no"}:
-        notes.append("tunnel")
-    if _is_null(row.get("maxspeed")):
-        notes.append("maxspeed_missing")
-    if _is_null(row.get("lanes")):
-        notes.append("lanes_missing")
-    if _is_null(row.get("sidewalk")):
-        notes.append("sidewalk_unknown")
-    return "; ".join(notes)
-
-
 def extract_route_edges(
     graph: nx.MultiDiGraph,
     route_nodes: Sequence[int],
@@ -472,15 +550,33 @@ def extract_route_edges(
             "geometry": geom,
             "segment_length_m": float(length_value),
             "bearing_deg": _segment_bearing_deg(geom),
+            "travel_time_s": _coerce_float(data.get("travel_time")),
         }
         for col in ROUTE_EDGE_COLUMNS:
             row[col] = data.get(col)
 
         row["primary_highway"] = _primary_highway(row.get("highway"))
         row["maxspeed_kph"] = _parse_maxspeed_kph(row.get("maxspeed"))
-        row["lanes_count"] = _extract_int(row.get("lanes"))
         row["oneway_bool"] = _parse_oneway(row.get("oneway"))
-        row["major_interpreted_notes"] = _edge_notes(row)
+
+        speed, speed_source, speed_conf = estimate_speed_kph(row)
+        row["maxspeed_kph"] = speed
+        row["speed_inference_source"] = speed_source
+        row["speed_confidence"] = float(min(1.0, max(0.0, speed_conf)))
+
+        lanes, lane_source, lane_conf = estimate_lanes(row)
+        row["lanes_count"] = lanes
+        row["lane_inference_source"] = lane_source
+        row["lane_confidence"] = float(min(1.0, max(0.0, lane_conf)))
+
+        notes: List[str] = []
+        if lane_source != "lanes_osm":
+            notes.append("lanes_inferred")
+        if speed_source != "speed_osm":
+            notes.append("maxspeed_inferred")
+        if row.get("sidewalk") is None:
+            notes.append("sidewalk_unknown")
+        row["major_interpreted_notes"] = "; ".join(notes)
 
         selected_tags = {k: _normalize_value(data.get(k)) for k in ROUTE_EDGE_COLUMNS if not _is_null(data.get(k))}
         row["tags"] = json.dumps(selected_tags, ensure_ascii=True, sort_keys=True)
@@ -488,6 +584,29 @@ def extract_route_edges(
 
     gdf = gpd.GeoDataFrame(rows, geometry="geometry", crs="EPSG:4326")
     return gdf
+
+
+def enrich_route_edges_with_curvature(route_edges_gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
+    enriched = route_edges_gdf.sort_values("segment_id").copy()
+    prev_bearing: Optional[float] = None
+    curvature_vals: List[Optional[float]] = []
+    curvature_classes: List[Optional[str]] = []
+
+    for idx, bearing in enumerate(enriched["bearing_deg"].tolist()):
+        b = (float(bearing) if not _is_null(bearing) else None)
+        if idx == 0:
+            curvature = 0.0
+        else:
+            curvature = _bearing_delta_deg(prev_bearing, b)
+            if curvature is None:
+                curvature = 0.0
+        curvature_vals.append(curvature)
+        curvature_classes.append(_curvature_class(curvature))
+        prev_bearing = b
+
+    enriched["curvature_deg"] = curvature_vals
+    enriched["curvature_class"] = curvature_classes
+    return gpd.GeoDataFrame(enriched, geometry="geometry", crs=route_edges_gdf.crs or "EPSG:4326")
 
 
 def get_route_geometry(route_edges_gdf: gpd.GeoDataFrame) -> LineString:
@@ -707,6 +826,10 @@ def _classify_feature(row: pd.Series) -> Tuple[str, str]:
     building = _first_text(row.get("building"))
     healthcare = _first_text(row.get("healthcare"))
     parking = _first_text(row.get("parking"))
+    cycleway = _first_text(row.get("cycleway"))
+    cycleway_left = _first_text(row.get("cycleway:left"))
+    cycleway_right = _first_text(row.get("cycleway:right"))
+    crossing = _first_text(row.get("crossing"))
 
     if highway == "traffic_signals":
         return "traffic_signal", "traffic_control"
@@ -714,7 +837,7 @@ def _classify_feature(row: pd.Series) -> Tuple[str, str]:
         return "stop_sign", "traffic_control"
     if highway == "give_way":
         return "give_way", "traffic_control"
-    if highway == "crossing" or railway in {"level_crossing", "crossing"}:
+    if highway == "crossing" or crossing is not None or railway in {"level_crossing", "crossing"}:
         return "crossing", "traffic_control"
     if traffic_calming is not None:
         return "traffic_calming", "traffic_control"
@@ -724,6 +847,8 @@ def _classify_feature(row: pd.Series) -> Tuple[str, str]:
         return "barrier", "traffic_control"
     if highway == "bus_stop" or public_transport in {"platform", "stop_position", "station"}:
         return "transit_stop", "transport_context"
+    if highway == "cycleway" or cycleway is not None or cycleway_left is not None or cycleway_right is not None:
+        return "bike_lane", "transport_context"
     if amenity == "school" or building == "school":
         return "school", "transport_context"
     if amenity == "hospital" or healthcare == "hospital":
@@ -928,17 +1053,22 @@ def query_turn_restrictions_overpass(
 
 
 def _jsonify_records(value: Any) -> Any:
+    import math
+
+    if isinstance(value, float) and math.isnan(value):
+        return None
     if isinstance(value, dict):
         return {str(k): _jsonify_records(v) for k, v in value.items()}
     if isinstance(value, list):
         return [_jsonify_records(v) for v in value]
     if isinstance(value, tuple):
         return [_jsonify_records(v) for v in value]
-    if isinstance(value, (int, float, str, bool)) or value is None:
-        return value
     if hasattr(value, "item"):
-        return value.item()
-    return str(value)
+        v = value.item()
+        if isinstance(v, float) and math.isnan(v):
+            return None
+        return v
+    return value
 
 
 def _sanitize_gdf_for_export(gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
@@ -954,38 +1084,185 @@ def _sanitize_gdf_for_export(gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
     return clean
 
 
-def _build_route_features_layer(
-    route_edges_gdf: gpd.GeoDataFrame,
+def _slugify_route_name(route_name: str) -> str:
+    safe = re.sub(r"[^A-Za-z0-9_-]+", "_", route_name.strip())
+    safe = re.sub(r"_+", "_", safe).strip("_")
+    return safe or "route"
+
+
+def _point_record(lat: float, lon: float, kind: str) -> Dict[str, Any]:
+    return {"latitude": float(lat), "longitude": float(lon), "type": kind}
+
+
+def _point_from_geometry(geometry: Any) -> Optional[Point]:
+    if geometry is None:
+        return None
+    if geometry.geom_type == "Point":
+        return geometry
+    try:
+        return geometry.representative_point()
+    except Exception:
+        return None
+
+
+def extract_points_of_interest(
+    route_nodes: Sequence[int],
+    graph: nx.MultiDiGraph,
     corridor_features_gdf: gpd.GeoDataFrame,
-    route_line: LineString,
-    corridor_polygon_wgs84: Polygon,
-) -> gpd.GeoDataFrame:
-    edges_layer = route_edges_gdf.copy()
-    edges_layer["feature_type"] = "route_edge"
-    edges_layer["feature_group"] = "route"
+    route_edges_gdf: gpd.GeoDataFrame,
+) -> Dict[str, List[Dict[str, Any]]]:
+    intersections: List[Dict[str, Any]] = []
+    traffic_signals: List[Dict[str, Any]] = []
+    stop_signs: List[Dict[str, Any]] = []
+    crossings: List[Dict[str, Any]] = []
+    bike_lanes: List[Dict[str, Any]] = []
 
-    line_layer = gpd.GeoDataFrame(
-        [{"feature_type": "route_line", "feature_group": "route", "geometry": route_line}],
-        geometry="geometry",
-        crs="EPSG:4326",
-    )
-    corridor_layer = gpd.GeoDataFrame(
-        [{"feature_type": "route_corridor", "feature_group": "route", "geometry": corridor_polygon_wgs84}],
-        geometry="geometry",
-        crs="EPSG:4326",
-    )
+    seen: Dict[str, set] = {
+        "intersections": set(),
+        "traffic_signals": set(),
+        "stop_signs": set(),
+        "crossings": set(),
+        "bike_lanes": set(),
+    }
 
-    if corridor_features_gdf.empty:
-        merged = pd.concat([edges_layer, line_layer, corridor_layer], ignore_index=True, sort=False)
-    else:
-        merged = pd.concat([edges_layer, corridor_features_gdf, line_layer, corridor_layer], ignore_index=True, sort=False)
-    merged = gpd.GeoDataFrame(merged, geometry="geometry", crs="EPSG:4326")
-    return merged
+    undirected = graph.to_undirected(as_view=True)
+    unique_nodes = list(dict.fromkeys([int(n) for n in route_nodes]))
+    for node in unique_nodes:
+        if undirected.degree(node) < 3:
+            continue
+        lat = graph.nodes[node]["y"]
+        lon = graph.nodes[node]["x"]
+        key = (round(lat, 7), round(lon, 7))
+        if key in seen["intersections"]:
+            continue
+        seen["intersections"].add(key)
+        intersections.append(_point_record(lat, lon, "intersection"))
+
+    feature_map = {
+        "traffic_signal": ("traffic_signals", traffic_signals, "traffic_signal"),
+        "stop_sign": ("stop_signs", stop_signs, "stop_sign"),
+        "crossing": ("crossings", crossings, "crossing"),
+        "bike_lane": ("bike_lanes", bike_lanes, "bike_lane"),
+    }
+    if not corridor_features_gdf.empty:
+        for _, row in corridor_features_gdf.iterrows():
+            feature_type = str(row.get("feature_type"))
+            if feature_type not in feature_map:
+                continue
+            bucket_name, bucket, label = feature_map[feature_type]
+            point_geom = _point_from_geometry(row.geometry)
+            if point_geom is None:
+                continue
+            key = (round(point_geom.y, 7), round(point_geom.x, 7))
+            if key in seen[bucket_name]:
+                continue
+            seen[bucket_name].add(key)
+            bucket.append(_point_record(point_geom.y, point_geom.x, label))
+
+    bike_tag_present = route_edges_gdf.apply(
+        lambda r: (
+            (not _is_null(r.get("cycleway")))
+            or (not _is_null(r.get("cycleway:left")))
+            or (not _is_null(r.get("cycleway:right")))
+        ),
+        axis=1,
+    )
+    for _, row in route_edges_gdf.loc[bike_tag_present].iterrows():
+        pt = _point_from_geometry(row.geometry)
+        if pt is None:
+            continue
+        key = (round(pt.y, 7), round(pt.x, 7))
+        if key in seen["bike_lanes"]:
+            continue
+        seen["bike_lanes"].add(key)
+        bike_lanes.append(_point_record(pt.y, pt.x, "bike_lane"))
+
+    return {
+        "intersections": intersections,
+        "traffic_signals": traffic_signals,
+        "stop_signs": stop_signs,
+        "crossings": crossings,
+        "bike_lanes": bike_lanes,
+    }
+
+
+def build_route_metrics(
+    route_edges_gdf: gpd.GeoDataFrame,
+    route_geometry_topology: Dict[str, Any],
+) -> Dict[str, Any]:
+    length_km = float(route_geometry_topology.get("route_length_km", 0.0))
+    length_miles = length_km * 0.621371
+
+    total_seconds: Optional[float] = None
+    if "travel_time_s" in route_edges_gdf.columns:
+        valid = route_edges_gdf["travel_time_s"].dropna()
+        if not valid.empty:
+            total_seconds = float(valid.astype(float).sum())
+
+    travel_time_min = (total_seconds / 60.0) if total_seconds is not None else None
+    return {
+        "length_km": length_km,
+        "length_miles": length_miles,
+        "travel_time_min": travel_time_min,
+    }
+
+
+def build_edge_attributes(route_edges_gdf: gpd.GeoDataFrame) -> List[Dict[str, Any]]:
+    rows: List[Dict[str, Any]] = []
+    for _, row in route_edges_gdf.sort_values("segment_id").iterrows():
+        oneway_bool = row.get("oneway_bool")
+        direction = "oneway" if oneway_bool is True else "twoway"
+        bearing_deg = row.get("bearing_deg")
+        curvature_deg = row.get("curvature_deg")
+        maxspeed_kph = row.get("maxspeed_kph")
+        lanes_count = row.get("lanes_count")
+        travel_time_s = row.get("travel_time_s")
+        lane_confidence = row.get("lane_confidence")
+        speed_confidence = row.get("speed_confidence")
+        rows.append(
+            {
+                "segment_id": int(row.get("segment_id")),
+                "from_node": int(row.get("from_node")),
+                "to_node": int(row.get("to_node")),
+                "segment_length_m": float(row.get("segment_length_m", 0.0)),
+                "bearing_deg": (None if pd.isna(bearing_deg) else bearing_deg),
+                "curvature_deg": (None if pd.isna(curvature_deg) else curvature_deg),
+                "curvature_class": row.get("curvature_class"),
+                "primary_highway": row.get("primary_highway"),
+                "maxspeed_kph": (None if pd.isna(maxspeed_kph) else maxspeed_kph),
+                "lanes_count": (None if pd.isna(lanes_count) else lanes_count),
+                "travel_time_s": (None if pd.isna(travel_time_s) else travel_time_s),
+                "lane_inference_source": row.get("lane_inference_source"),
+                "lane_confidence": (None if pd.isna(lane_confidence) else lane_confidence),
+                "speed_inference_source": row.get("speed_inference_source"),
+                "speed_confidence": (None if pd.isna(speed_confidence) else speed_confidence),
+                "oneway_bool": oneway_bool,
+                "direction": direction,
+                "major_interpreted_notes": row.get("major_interpreted_notes"),
+            }
+        )
+    return rows
+
+
+def build_curvature_analysis(route_edges_gdf: gpd.GeoDataFrame) -> List[Dict[str, Any]]:
+    analysis: List[Dict[str, Any]] = []
+    for _, row in route_edges_gdf.sort_values("segment_id").iterrows():
+        bearing_deg = row.get("bearing_deg")
+        curvature_deg = row.get("curvature_deg")
+        analysis.append(
+            {
+                "segment_id": int(row.get("segment_id")),
+                "bearing_deg": (None if pd.isna(bearing_deg) else bearing_deg),
+                "curvature_deg": (None if pd.isna(curvature_deg) else curvature_deg),
+                "curvature_class": row.get("curvature_class"),
+            }
+        )
+    return analysis
 
 
 def _export_optional_map(
     route_line: LineString,
-    corridor_features_gdf: gpd.GeoDataFrame,
+    points_of_interest: Dict[str, List[Dict[str, Any]]],
     output_html_path: Path,
     input_points: Sequence[Tuple[float, float]],
 ) -> bool:
@@ -1003,357 +1280,95 @@ def _export_optional_map(
         style_function=lambda _: {"color": "#1565C0", "weight": 5, "opacity": 0.9},
     ).add_to(fmap)
 
-    if not corridor_features_gdf.empty:
-        for feature_type, color in {
-            "traffic_signal": "#D32F2F",
-            "stop_sign": "#C62828",
-            "give_way": "#EF6C00",
-            "crossing": "#6A1B9A",
-            "traffic_calming": "#00897B",
-            "roundabout": "#5D4037",
-            "transit_stop": "#2E7D32",
-            "school": "#0277BD",
-            "hospital": "#AD1457",
-            "parking": "#616161",
-        }.items():
-            subset = corridor_features_gdf.loc[corridor_features_gdf["feature_type"] == feature_type]
-            if subset.empty:
-                continue
-            feature_group = folium.FeatureGroup(name=feature_type)
-            for _, row in subset.iterrows():
-                geom = row.geometry
-                if geom is None:
-                    continue
-                if geom.geom_type == "Point":
-                    folium.CircleMarker(
-                        location=[geom.y, geom.x],
-                        radius=4,
-                        color=color,
-                        fill=True,
-                        fill_opacity=0.9,
-                    ).add_to(feature_group)
-                else:
-                    folium.GeoJson(
-                        gpd.GeoSeries([geom], crs="EPSG:4326").to_json(),
-                        style_function=lambda _, c=color: {"color": c, "weight": 2, "opacity": 0.9},
-                    ).add_to(feature_group)
-            feature_group.add_to(fmap)
+    for poi_key, poi_color in {
+        "traffic_signals": "#D32F2F",
+        "stop_signs": "#EF6C00",
+        "crossings": "#6A1B9A",
+        "bike_lanes": "#2E7D32",
+    }.items():
+        feature_group = folium.FeatureGroup(name=poi_key)
+        for poi in points_of_interest.get(poi_key, []):
+            folium.CircleMarker(
+                location=[float(poi["latitude"]), float(poi["longitude"])],
+                radius=4,
+                color=poi_color,
+                fill=True,
+                fill_opacity=0.9,
+            ).add_to(feature_group)
+        feature_group.add_to(fmap)
 
     for i, (lat, lon) in enumerate(input_points):
         label = "Start" if i == 0 else ("End" if i == len(input_points) - 1 else f"Waypoint {i}")
-        folium.Marker([lat, lon], tooltip=label).add_to(fmap)
+        if i == 0:
+            icon_color = "green"
+        elif i == len(input_points) - 1:
+            icon_color = "red"
+        else:
+            icon_color = "blue"
+        folium.Marker([lat, lon], tooltip=label, icon=folium.Icon(color=icon_color)).add_to(fmap)
 
     folium.LayerControl(collapsed=False).add_to(fmap)
     fmap.save(str(output_html_path))
     return True
 
 
-def _parse_linestring_wkt(linestring_wkt: str) -> List[Tuple[float, float]]:
-    """
-    Minimal WKT LINESTRING parser returning [(lat, lon), ...].
-    Uses only standard library for the enhanced visualization.
-    """
-    text = (linestring_wkt or "").strip()
-    if not text.upper().startswith("LINESTRING"):
-        return []
-    start = text.find("(")
-    end = text.rfind(")")
-    if start < 0 or end < 0 or end <= start:
-        return []
-    body = text[start + 1 : end].strip()
-    if not body:
-        return []
-    coords: List[Tuple[float, float]] = []
-    for part in body.split(","):
-        items = part.strip().split()
-        if len(items) < 2:
-            continue
-        try:
-            lon = float(items[0])
-            lat = float(items[1])
-        except ValueError:
-            continue
-        coords.append((lat, lon))
-    return coords
-
-
-def _haversine_m(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
-    r = 6371000.0
-    phi1 = math.radians(lat1)
-    phi2 = math.radians(lat2)
-    dphi = math.radians(lat2 - lat1)
-    dlambda = math.radians(lon2 - lon1)
-    a = math.sin(dphi / 2.0) ** 2 + math.cos(phi1) * math.cos(phi2) * math.sin(dlambda / 2.0) ** 2
-    return 2.0 * r * math.asin(min(1.0, math.sqrt(a)))
-
-
-def _segment_color(segment_score: float) -> str:
-    if segment_score < 1.0:
-        return "green"
-    if segment_score < 2.0:
-        return "yellow"
-    return "red"
-
-
-def _export_enhanced_map(output_dir: Path, input_points: Sequence[Tuple[float, float]]) -> bool:
-    """
-    Create an enhanced map using exported CSV/JSON outputs.
-
-    Keeps the original map export intact; this is an additional visualization step.
-    """
-    try:
-        import folium  # optional dependency
-    except ImportError:
-        return False
-
-    segments_csv = output_dir / "route_segments.csv"
-    corridor_csv = output_dir / "corridor_features.csv"
-    complexity_json = output_dir / "route_complexity.json"
-    out_html = output_dir / "route_map_enhanced.html"
-
-    if not segments_csv.exists():
-        return False
-
-    center_lat, center_lon = input_points[0]
-    fmap = folium.Map(location=[center_lat, center_lon], zoom_start=13, tiles="cartodbpositron")
-
-    seg_group = folium.FeatureGroup(name="Route difficulty (segments)", show=True)
-    all_points: List[Tuple[float, float]] = []
-
-    with segments_csv.open("r", encoding="utf-8", newline="") as f:
-        reader = csv.DictReader(f)
-        for row in reader:
-            wkt = (row.get("geometry") or "").strip()
-            pts = _parse_linestring_wkt(wkt)
-            if len(pts) < 2:
-                continue
-
-            try:
-                length_m = float(row.get("segment_length_m") or row.get("length") or 0.0)
-            except ValueError:
-                length_m = 0.0
-
-            (lat1, lon1), (lat2, lon2) = pts[0], pts[-1]
-            straight_m = _haversine_m(lat1, lon1, lat2, lon2)
-            sinuosity = (length_m / straight_m) if (length_m > 0 and straight_m > 0) else 1.0
-
-            # Approximate per-segment intersection density as "one intersection per segment end"
-            # expressed in intersections per km of segment length.
-            intersection_density = (1000.0 / length_m) if length_m > 0 else 0.0
-
-            segment_score = sinuosity + intersection_density
-            color = _segment_color(segment_score)
-
-            folium.PolyLine(
-                locations=pts,
-                color=color,
-                weight=6,
-                opacity=0.9,
-                tooltip=f"segment_score={segment_score:.3f} (sinuosity={sinuosity:.3f}, intersection_density={intersection_density:.3f})",
-            ).add_to(seg_group)
-            all_points.extend(pts)
-
-    seg_group.add_to(fmap)
-
-    # Intersection / Crossing markers from exported corridor_features.csv
-    if corridor_csv.exists():
-        signal_group = folium.FeatureGroup(name="Traffic signals", show=True)
-        crossing_group = folium.FeatureGroup(name="Crossings", show=True)
-
-        with corridor_csv.open("r", encoding="utf-8", newline="") as f:
-            reader = csv.DictReader(f)
-            for row in reader:
-                ftype = (row.get("feature_type") or "").strip().lower()
-                try:
-                    lat = float(row.get("latitude") or row.get("lat") or "")
-                    lon = float(row.get("longitude") or row.get("lon") or "")
-                except ValueError:
-                    continue
-
-                popup_html = (
-                    f"<b>feature_type</b>: {ftype}<br/>"
-                    f"<b>latitude</b>: {lat:.6f}<br/>"
-                    f"<b>longitude</b>: {lon:.6f}"
-                )
-
-                if ftype == "traffic_signal":
-                    folium.Marker(
-                        location=[lat, lon],
-                        icon=folium.Icon(color="red", icon="info-sign"),
-                        popup=folium.Popup(popup_html, max_width=300),
-                    ).add_to(signal_group)
-                elif ftype == "crossing":
-                    folium.Marker(
-                        location=[lat, lon],
-                        icon=folium.Icon(color="blue", icon="info-sign"),
-                        popup=folium.Popup(popup_html, max_width=300),
-                    ).add_to(crossing_group)
-
-        signal_group.add_to(fmap)
-        crossing_group.add_to(fmap)
-
-    for i, (lat, lon) in enumerate(input_points):
-        label = "Start" if i == 0 else ("End" if i == len(input_points) - 1 else f"Waypoint {i}")
-        folium.Marker([lat, lon], tooltip=label).add_to(fmap)
-
-    # Complexity summary floating panel (top-right)
-    panel_rows: List[Tuple[str, str]] = []
-    if complexity_json.exists():
-        try:
-            with complexity_json.open("r", encoding="utf-8") as f:
-                comp = json.load(f)
-        except Exception:
-            comp = {}
-
-        def _fmt_num(v: Any, nd: int = 3) -> str:
-            try:
-                return f"{float(v):.{nd}f}"
-            except Exception:
-                return "n/a"
-
-        panel_rows = [
-            ("Route Length (km)", _fmt_num(comp.get("route_length_km"), 3)),
-            ("Intersection Density", _fmt_num(comp.get("intersection_density"), 3)),
-            ("Sinuosity", _fmt_num(comp.get("sinuosity"), 3)),
-            ("Traffic Signal Density", _fmt_num(comp.get("traffic_signal_density"), 3)),
-            ("Crossing Density", _fmt_num(comp.get("crossing_density"), 3)),
-            ("Complexity Score", _fmt_num(comp.get("complexity_score"), 3)),
-            ("Classification", str(comp.get("classification") or "n/a")),
-        ]
-    else:
-        panel_rows = [("route_complexity.json", "not found")]
-
-    rows_html = "".join(f"<tr><td>{k}</td><td style='text-align:right;'><b>{v}</b></td></tr>" for k, v in panel_rows)
-    panel_html = f"""
-    <div style="
-        position: fixed;
-        top: 12px;
-        right: 12px;
-        z-index: 9999;
-        background: rgba(255, 255, 255, 0.95);
-        border: 1px solid #bbb;
-        border-radius: 8px;
-        padding: 10px 12px;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.15);
-        font-family: Arial, sans-serif;
-        font-size: 12px;
-        min-width: 260px;
-    ">
-      <div style="font-size: 14px; font-weight: 700; margin-bottom: 6px;">Route Complexity Report</div>
-      <table style="width:100%; border-collapse: collapse;">
-        {rows_html}
-      </table>
-    </div>
-    """
-    fmap.get_root().html.add_child(folium.Element(panel_html))
-
-    if all_points:
-        fmap.fit_bounds(all_points)
-
-    folium.LayerControl(collapsed=False).add_to(fmap)
-    fmap.save(str(out_html))
-    return True
-
-
 def export_outputs(
-    route_edges_gdf: gpd.GeoDataFrame,
-    route_summary: Dict[str, Any],
-    corridor_features_gdf: gpd.GeoDataFrame,
+    route_output: Dict[str, Any],
     route_line: LineString,
-    corridor_polygon_wgs84: Polygon,
     output_dir: str,
+    route_name: str,
     input_points: Sequence[Tuple[float, float]],
+    points_of_interest: Dict[str, List[Dict[str, Any]]],
     export_map: bool = True,
 ) -> Dict[str, str]:
     """
-    Export route segments, summary, and combined features layers.
+    Export one JSON output and optional map for the selected route.
     """
     out_dir = Path(output_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
 
-    segments_path = out_dir / "route_segments.csv"
-    corridor_csv_path = out_dir / "corridor_features.csv"
-    summary_path = out_dir / "route_summary.json"
-    features_path = out_dir / "route_features.geojson"
-    map_path = out_dir / "route_map.html"
-
-    segments_df = route_edges_gdf.copy()
-    segments_df["geometry"] = segments_df.geometry.apply(lambda g: g.wkt if g is not None else None)
-    for col in ROUTE_EDGE_COLUMNS:
-        if col in segments_df.columns:
-            segments_df[col] = segments_df[col].apply(_normalize_value)
-    segments_df.to_csv(segments_path, index=False)
-
-    # Export corridor features for visualization (CSV) with lat/lon for markers
-    corridor_df = corridor_features_gdf.copy()
-    if corridor_df.empty:
-        pd.DataFrame(columns=["feature_type", "feature_group", "latitude", "longitude", "geometry"]).to_csv(
-            corridor_csv_path, index=False
-        )
-    else:
-        if corridor_df.crs is None:
-            corridor_df = corridor_df.set_crs("EPSG:4326")
-        else:
-            corridor_df = corridor_df.to_crs("EPSG:4326")
-
-        geom_series = corridor_df.geometry
-        rep_points = geom_series.apply(lambda g: (g if (g is not None and g.geom_type == "Point") else (g.representative_point() if g is not None else None)))
-        corridor_df["latitude"] = rep_points.apply(lambda p: (p.y if p is not None else None))
-        corridor_df["longitude"] = rep_points.apply(lambda p: (p.x if p is not None else None))
-        corridor_df["geometry"] = corridor_df.geometry.apply(lambda g: g.wkt if g is not None else None)
-
-        cols = [c for c in ["feature_type", "feature_group", "latitude", "longitude", "geometry"] if c in corridor_df.columns]
-        corridor_df[cols].to_csv(corridor_csv_path, index=False)
+    route_slug = _slugify_route_name(route_name)
+    summary_path = out_dir / f"{route_slug}.json"
+    map_path = out_dir / f"{route_slug}_map.html"
 
     with open(summary_path, "w", encoding="utf-8") as fp:
-        json.dump(_jsonify_records(route_summary), fp, ensure_ascii=True, indent=2, sort_keys=True)
-
-    features_layer = _build_route_features_layer(route_edges_gdf, corridor_features_gdf, route_line, corridor_polygon_wgs84)
-    features_layer = _sanitize_gdf_for_export(features_layer)
-    features_layer.to_file(features_path, driver="GeoJSON")
+        json.dump(_jsonify_records(route_output), fp, ensure_ascii=True, indent=2, sort_keys=True)
 
     exported_map = False
     if export_map:
-        exported_map = _export_optional_map(route_line, corridor_features_gdf, map_path, input_points=input_points)
-        _export_enhanced_map(out_dir, input_points=input_points)
+        exported_map = _export_optional_map(
+            route_line=route_line,
+            points_of_interest=points_of_interest,
+            output_html_path=map_path,
+            input_points=input_points,
+        )
 
     return {
-        "route_segments_csv": str(segments_path),
-        "route_summary_json": str(summary_path),
-        "route_features_geojson": str(features_path),
+        "route_output_json": str(summary_path),
         "route_map_html": (str(map_path) if exported_map else "not_exported_folium_missing"),
     }
 
 
-def _human_report(route_summary: Dict[str, Any], exported_paths: Dict[str, str]) -> str:
-    topo = route_summary["route_geometry_topology"]
-    edge = route_summary["edge_attribute_summary"]
-    control = route_summary["corridor_feature_summary"]["traffic_control_counts"]
-    context = route_summary["corridor_feature_summary"]["context_counts"]
-
-    density = topo.get("intersection_density_per_km")
-    sinuosity = topo.get("curvature_proxy_sinuosity")
-    density_text = f"{density:.2f}" if density is not None else "n/a"
-    sinuosity_text = f"{sinuosity:.3f}" if sinuosity is not None else "n/a"
+def _human_report(route_output: Dict[str, Any], exported_paths: Dict[str, str]) -> str:
+    metrics = route_output["route_metrics"]
+    pois = route_output["points_of_interest"]
+    corridor = route_output["corridor_summary"]
+    control = corridor["traffic_control_counts"]
 
     return (
         "\nRoute OSM Analysis Report\n"
         "-------------------------\n"
-        f"Length: {topo['route_length_km']:.3f} km ({topo['segment_count']} traversed segments)\n"
-        f"Intersections on route: {topo['intersection_count']} "
-        f"(density={density_text} per km)\n"
-        f"Curvature proxy (sinuosity): {sinuosity_text}\n"
-        f"Weighted avg speed limit (kph): {edge['weighted_avg_speed_limit_kph']}\n"
+        f"Route: {route_output['route_name']}\n"
+        f"Length: {metrics['length_km']:.3f} km ({metrics['length_miles']:.3f} miles)\n"
+        f"Estimated travel time: {metrics['travel_time_min']} min\n"
+        f"POIs: intersections={len(pois['intersections'])}, "
+        f"signals={len(pois['traffic_signals'])}, stops={len(pois['stop_signs'])}, "
+        f"crossings={len(pois['crossings'])}, bike_lanes={len(pois['bike_lanes'])}\n"
         f"Traffic controls in corridor: signals={control['traffic_signals']}, "
         f"stop/yield={control['stop_controlled']}, crossings={control['crossings']}, "
         f"traffic calming={control['traffic_calming']}, roundabouts={control['roundabouts']}\n"
-        f"Context counts: buildings={context['buildings']}, schools={context['schools']}, "
-        f"hospitals={context['hospitals']}, parking={context['parking']}, "
-        f"transit_stops={context['transit_stops']}\n"
         "Outputs:\n"
-        f"- route_segments.csv: {exported_paths['route_segments_csv']}\n"
-        f"- route_summary.json: {exported_paths['route_summary_json']}\n"
-        f"- route_features.geojson: {exported_paths['route_features_geojson']}\n"
+        f"- route_output.json: {exported_paths['route_output_json']}\n"
         f"- route_map.html: {exported_paths['route_map_html']}\n"
     )
 
@@ -1364,6 +1379,7 @@ def main(
     end: Tuple[float, float],
     corridor_width_m: float = 30.0,
     output_dir: str = "output",
+    route_name: str = "Selected Route",
     query_turn_restrictions: bool = True,
     export_map: bool = True,
 ) -> Dict[str, Any]:
@@ -1372,6 +1388,7 @@ def main(
     """
     build_result = build_route(start=start, middle=middle, end=end, network_type="drive")
     route_edges = extract_route_edges(build_result.graph, build_result.route_nodes, weight_for_parallel_edges="length")
+    route_edges = enrich_route_edges_with_curvature(route_edges)
     route_line = get_route_geometry(route_edges)
 
     corridor_features, corridor_wgs84, corridor_proj, proj_crs = query_corridor_features(
@@ -1398,57 +1415,51 @@ def main(
         query_turn_restrictions_overpass(corridor_wgs84) if query_turn_restrictions else {"status": "skipped"}
     )
 
-    route_summary: Dict[str, Any] = {
+    points_of_interest = extract_points_of_interest(
+        route_nodes=build_result.route_nodes,
+        graph=build_result.graph,
+        corridor_features_gdf=corridor_features,
+        route_edges_gdf=route_edges,
+    )
+    route_metrics = build_route_metrics(route_edges, edge_summary["route_geometry_topology"])
+    edge_attributes = build_edge_attributes(route_edges)
+    curvature_analysis = build_curvature_analysis(route_edges)
+
+    route_output: Dict[str, Any] = {
+        "route_name": route_name,
         "inputs": {
             "start": list(start),
             "middle": [list(p) for p in (middle or [])],
             "end": list(end),
             "corridor_width_m": corridor_width_m,
         },
+        "route_metrics": route_metrics,
+        "points_of_interest": points_of_interest,
+        "edge_attributes": edge_attributes,
+        "curvature_analysis": curvature_analysis,
+        "corridor_summary": corridor_summary,
         "snap_summary": build_result.snapped_info.to_dict(orient="records"),
-        "search_area": {
-            "search_buffer_m": build_result.search_buffer_m,
-            "search_polygon_wkt": build_result.search_polygon_wgs84.wkt,
-        },
         "route_geometry_topology": edge_summary["route_geometry_topology"],
         "edge_attribute_summary": edge_summary["edge_attribute_summary"],
-        "corridor_feature_summary": corridor_summary,
         "turn_restrictions": turn_restrictions,
-        "data_sections": {
-            "direct_osm_route_edge_attributes": ROUTE_EDGE_COLUMNS,
-            "derived_metrics": [
-                "intersection_density_per_km",
-                "curvature_proxy_sinuosity",
-                "weighted_avg_speed_limit_kph",
-                "percent_length_by_highway_type",
-                "lane_count_distribution",
-                "oneway_proportion_by_length",
-                "route_proximity",
-            ],
-            "corridor_context_features": [
-                "traffic_control_counts",
-                "context_counts",
-                "landuse_summary",
-            ],
-        },
     }
 
     export_paths = export_outputs(
-        route_edges_gdf=route_edges,
-        route_summary=route_summary,
-        corridor_features_gdf=corridor_features,
+        route_output=route_output,
         route_line=route_line,
-        corridor_polygon_wgs84=corridor_wgs84,
         output_dir=output_dir,
+        route_name=route_name,
         input_points=build_result.input_points,
+        points_of_interest=points_of_interest,
         export_map=export_map,
     )
 
-    report = _human_report(route_summary, export_paths)
+    report = _human_report(route_output, export_paths)
     print(report)
 
     return {
-        "route_summary": route_summary,
+        "route_summary": route_output,
+        "route_output": route_output,
         "route_edges_gdf": route_edges,
         "corridor_features_gdf": corridor_features,
         "export_paths": export_paths,
@@ -1457,13 +1468,23 @@ def main(
 
 
 if __name__ == "__main__":
-    # Example run
+    print("Available routes:")
+    for key, route in ROUTES.items():
+        print(f"{key}: {route['name']}")
+
+    choice = input("Select route (1, 2, or 3): ")
+    if choice not in ROUTES:
+        raise ValueError("Invalid route selection")
+
+    selected = ROUTES[choice]
+
     main(
-        start=START,
-        middle=MIDDLE,
-        end=END,
+        start=selected["start"],
+        middle=selected["waypoints"],
+        end=selected["end"],
         corridor_width_m=CORRIDOR_WIDTH_M,
         output_dir=OUTPUT_DIR,
+        route_name=selected["name"],
         query_turn_restrictions=True,
         export_map=True,
     )
