@@ -50,7 +50,7 @@ ROUTES: Dict[str, Dict[str, Any]] = {
     },
     "2": {
         "name": "FM 908 to CR 316",
-        "start": (30.555226, -96.746941),
+        "start": (30.551123, -96.717877),
         "waypoints": [
             (30.554, -96.79427),
             (30.5268, -96.8477),
@@ -1207,8 +1207,103 @@ def build_route_metrics(
     }
 
 
-def build_edge_attributes(route_edges_gdf: gpd.GeoDataFrame) -> List[Dict[str, Any]]:
+def is_near(lat1: float, lon1: float, lat2: float, lon2: float, threshold_m: float = 30.0) -> bool:
+    return _haversine_m(lat1, lon1, lat2, lon2) <= float(threshold_m)
+
+
+def _signed_bearing_change_deg(prev_bearing: Optional[float], curr_bearing: Optional[float]) -> Optional[float]:
+    if prev_bearing is None or curr_bearing is None:
+        return None
+    return ((float(curr_bearing) - float(prev_bearing) + 540.0) % 360.0) - 180.0
+
+
+def _segment_center_lat_lon(geometry: Any) -> Tuple[Optional[float], Optional[float]]:
+    if geometry is None:
+        return None, None
+    try:
+        center = geometry.interpolate(0.5, normalized=True)
+    except Exception:
+        try:
+            center = geometry.representative_point()
+        except Exception:
+            return None, None
+    if center is None:
+        return None, None
+    return float(center.y), float(center.x)
+
+
+def classify_driving_state(
+    segment: Dict[str, Any],
+    prev_segment: Optional[Dict[str, Any]],
+    pois: Dict[str, List[Dict[str, Any]]],
+) -> Dict[str, str]:
+    curvature = segment.get("curvature_deg")
+    bearing = segment.get("bearing_deg")
+    prev_bearing = (prev_segment or {}).get("bearing_deg")
+
+    geometry_state = "turn"
+    if curvature is None:
+        geometry_state = "turn"
+    elif float(curvature) < 10.0:
+        geometry_state = "straight"
+    else:
+        delta = _signed_bearing_change_deg(prev_bearing, bearing)
+        if delta is None:
+            geometry_state = "turn"
+        elif delta > 0:
+            geometry_state = "right_turn"
+        elif delta < 0:
+            geometry_state = "left_turn"
+        else:
+            geometry_state = "turn"
+
+    seg_lat = segment.get("_center_lat")
+    seg_lon = segment.get("_center_lon")
+    topology_state = "road_segment"
+    if seg_lat is not None and seg_lon is not None:
+        for poi in pois.get("intersections", []):
+            p_lat = poi.get("latitude")
+            p_lon = poi.get("longitude")
+            if p_lat is None or p_lon is None:
+                continue
+            if is_near(seg_lat, seg_lon, float(p_lat), float(p_lon), threshold_m=40.0):
+                topology_state = "intersection"
+                break
+
+    control_state = "none"
+    if seg_lat is not None and seg_lon is not None:
+        control_groups = [
+            ("traffic_signals", "traffic_light"),
+            ("stop_signs", "stop_sign"),
+            ("crossings", "pedestrian_crossing"),
+        ]
+        for poi_group, label in control_groups:
+            hit = False
+            for poi in pois.get(poi_group, []):
+                p_lat = poi.get("latitude")
+                p_lon = poi.get("longitude")
+                if p_lat is None or p_lon is None:
+                    continue
+                if is_near(seg_lat, seg_lon, float(p_lat), float(p_lon), threshold_m=30.0):
+                    control_state = label
+                    hit = True
+                    break
+            if hit:
+                break
+
+    return {
+        "geometry": geometry_state,
+        "topology": topology_state,
+        "control": control_state,
+    }
+
+
+def build_edge_attributes(
+    route_edges_gdf: gpd.GeoDataFrame, points_of_interest: Optional[Dict[str, List[Dict[str, Any]]]] = None
+) -> List[Dict[str, Any]]:
+    pois = points_of_interest or {}
     rows: List[Dict[str, Any]] = []
+    prev_segment: Optional[Dict[str, Any]] = None
     for _, row in route_edges_gdf.sort_values("segment_id").iterrows():
         oneway_bool = row.get("oneway_bool")
         direction = "oneway" if oneway_bool is True else "twoway"
@@ -1219,28 +1314,36 @@ def build_edge_attributes(route_edges_gdf: gpd.GeoDataFrame) -> List[Dict[str, A
         travel_time_s = row.get("travel_time_s")
         lane_confidence = row.get("lane_confidence")
         speed_confidence = row.get("speed_confidence")
-        rows.append(
-            {
-                "segment_id": int(row.get("segment_id")),
-                "from_node": int(row.get("from_node")),
-                "to_node": int(row.get("to_node")),
-                "segment_length_m": float(row.get("segment_length_m", 0.0)),
-                "bearing_deg": (None if pd.isna(bearing_deg) else bearing_deg),
-                "curvature_deg": (None if pd.isna(curvature_deg) else curvature_deg),
-                "curvature_class": row.get("curvature_class"),
-                "primary_highway": row.get("primary_highway"),
-                "maxspeed_kph": (None if pd.isna(maxspeed_kph) else maxspeed_kph),
-                "lanes_count": (None if pd.isna(lanes_count) else lanes_count),
-                "travel_time_s": (None if pd.isna(travel_time_s) else travel_time_s),
-                "lane_inference_source": row.get("lane_inference_source"),
-                "lane_confidence": (None if pd.isna(lane_confidence) else lane_confidence),
-                "speed_inference_source": row.get("speed_inference_source"),
-                "speed_confidence": (None if pd.isna(speed_confidence) else speed_confidence),
-                "oneway_bool": oneway_bool,
-                "direction": direction,
-                "major_interpreted_notes": row.get("major_interpreted_notes"),
-            }
-        )
+        center_lat, center_lon = _segment_center_lat_lon(row.get("geometry"))
+
+        segment: Dict[str, Any] = {
+            "segment_id": int(row.get("segment_id")),
+            "from_node": int(row.get("from_node")),
+            "to_node": int(row.get("to_node")),
+            "segment_length_m": float(row.get("segment_length_m", 0.0)),
+            "bearing_deg": (None if pd.isna(bearing_deg) else bearing_deg),
+            "curvature_deg": (None if pd.isna(curvature_deg) else curvature_deg),
+            "curvature_class": row.get("curvature_class"),
+            "primary_highway": row.get("primary_highway"),
+            "maxspeed_kph": (None if pd.isna(maxspeed_kph) else maxspeed_kph),
+            "lanes_count": (None if pd.isna(lanes_count) else lanes_count),
+            "travel_time_s": (None if pd.isna(travel_time_s) else travel_time_s),
+            "lane_inference_source": row.get("lane_inference_source"),
+            "lane_confidence": (None if pd.isna(lane_confidence) else lane_confidence),
+            "speed_inference_source": row.get("speed_inference_source"),
+            "speed_confidence": (None if pd.isna(speed_confidence) else speed_confidence),
+            "oneway_bool": oneway_bool,
+            "direction": direction,
+            "major_interpreted_notes": row.get("major_interpreted_notes"),
+            "_center_lat": center_lat,
+            "_center_lon": center_lon,
+        }
+        segment["driving_state"] = classify_driving_state(segment=segment, prev_segment=prev_segment, pois=pois)
+        segment.pop("_center_lat", None)
+        segment.pop("_center_lon", None)
+
+        rows.append(segment)
+        prev_segment = segment
     return rows
 
 
@@ -1422,7 +1525,7 @@ def main(
         route_edges_gdf=route_edges,
     )
     route_metrics = build_route_metrics(route_edges, edge_summary["route_geometry_topology"])
-    edge_attributes = build_edge_attributes(route_edges)
+    edge_attributes = build_edge_attributes(route_edges, points_of_interest=points_of_interest)
     curvature_analysis = build_curvature_analysis(route_edges)
 
     route_output: Dict[str, Any] = {

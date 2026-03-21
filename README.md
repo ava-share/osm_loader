@@ -8,6 +8,7 @@ Current behavior:
 - Prompts the user to select route `1`, `2`, or `3`.
 - Builds a drivable route via waypoints.
 - Extracts edge-level OSM attributes and derived metrics.
+- Classifies per-segment driving state (`geometry`, `topology`, `control`).
 - Queries corridor features and builds explicit points of interest.
 - Exports one JSON file per selected route.
 - Optionally exports one interactive Folium HTML map.
@@ -122,6 +123,34 @@ Each entry in `edge_attributes` includes fields such as:
 - `lane_inference_source`, `lane_confidence`
 - `speed_inference_source`, `speed_confidence`
 - `major_interpreted_notes`
+- `driving_state`
+
+### Driving State (per segment)
+
+Each `edge_attributes` item now includes:
+
+```json
+"driving_state": {
+  "geometry": "straight|left_turn|right_turn|turn",
+  "topology": "intersection|road_segment",
+  "control": "traffic_light|stop_sign|pedestrian_crossing|none"
+}
+```
+
+How it is computed:
+
+- `geometry`
+  - Uses `curvature_deg` and bearing change vs previous segment.
+  - `< 10` deg -> `straight`
+  - `>= 10` deg -> `left_turn` or `right_turn` when turn direction is known, otherwise `turn`.
+- `topology`
+  - Uses proximity to intersection POIs.
+  - Segment near an intersection is classified as `intersection`; otherwise `road_segment`.
+- `control` (priority order)
+  - Near traffic signal -> `traffic_light`
+  - Else near stop sign -> `stop_sign`
+  - Else near crossing -> `pedestrian_crossing`
+  - Else -> `none`
 
 ### Inference and Confidence
 
