@@ -666,6 +666,33 @@ def _leg_distance_time(
     return length_sum, (time_sum if has_time else None)
 
 
+def compute_route_cumulative_distances(
+    route_nodes: Sequence[int],
+    graph: nx.MultiDiGraph,
+) -> List[float]:
+    """
+    Return a list of cumulative edge-length distances (metres) from the start of
+    the route to each successive node in *route_nodes*.
+
+    ``distances[i]`` is the total distance travelled to reach ``route_nodes[i]``
+    along the route.  The first element is always ``0.0``.
+    """
+    distances: List[float] = [0.0]
+    for i in range(len(route_nodes) - 1):
+        u = int(route_nodes[i])
+        v = int(route_nodes[i + 1])
+        try:
+            _, data = _choose_edge_key_data(graph, u, v, weight="length")
+            seg_len = _coerce_float(data.get("length")) or 0.0
+        except KeyError:
+            seg_len = _haversine_m(
+                graph.nodes[u]["y"], graph.nodes[u]["x"],
+                graph.nodes[v]["y"], graph.nodes[v]["x"],
+            )
+        distances.append(distances[-1] + seg_len)
+    return distances
+
+
 def summarize_edge_attributes(
     route_edges_gdf: gpd.GeoDataFrame,
     route_nodes: Sequence[int],
@@ -1186,6 +1213,166 @@ def extract_points_of_interest(
     }
 
 
+def _collect_intersection_edge_info(
+    graph: nx.MultiDiGraph,
+    node: int,
+) -> Dict[str, Any]:
+    """
+    Inspect all edges incident to *node* in the directed graph and return
+    aggregated attributes used for intersection detail records.
+
+    Parallel directed edges between the same pair of nodes share a canonical
+    undirected key ``(min(u,v), max(u,v), key)`` so they are counted only once.
+    """
+    seen_edges: set = set()
+    highway_types_set: set = set()
+    road_names_set: set = set()
+    oneway_count = 0
+    twoway_count = 0
+
+    all_directed: List[Tuple[int, int, int, Dict[str, Any]]] = (
+        list(graph.out_edges(node, data=True, keys=True))
+        + list(graph.in_edges(node, data=True, keys=True))
+    )
+
+    for u, v, key, data in all_directed:
+        edge_id = (min(u, v), max(u, v), key)
+        if edge_id in seen_edges:
+            continue
+        seen_edges.add(edge_id)
+
+        for hw in _to_list(data.get("highway")):
+            if not _is_null(hw):
+                highway_types_set.add(str(hw).strip())
+
+        name = _first_text(data.get("name"))
+        if name:
+            road_names_set.add(name)
+
+        if _parse_oneway(data.get("oneway")) is True:
+            oneway_count += 1
+        else:
+            twoway_count += 1
+
+    return {
+        "edge_count": len(seen_edges),
+        "highway_types": sorted(highway_types_set),
+        "road_names": sorted(road_names_set),
+        "oneway_count": oneway_count,
+        "twoway_count": twoway_count,
+    }
+
+
+def build_intersection_details(
+    route_nodes: Sequence[int],
+    graph: nx.MultiDiGraph,
+    points_of_interest: Dict[str, List[Dict[str, Any]]],
+    snapped_nodes: Sequence[int],
+    input_points: Sequence[Tuple[float, float]],
+    proximity_threshold_m: float = 30.0,
+) -> List[Dict[str, Any]]:
+    """
+    Build a detailed record for every route node that qualifies as an
+    intersection (undirected degree >= 3).
+
+    Each record includes edge-level attributes, proximity-based control flags,
+    cumulative distance from the route start, and whether the node corresponds
+    to one of the original input points (start / waypoint_N / end).
+    """
+    undirected = graph.to_undirected(as_view=True)
+    unique_nodes: List[int] = list(dict.fromkeys([int(n) for n in route_nodes]))
+
+    cumulative_distances = compute_route_cumulative_distances(route_nodes, graph)
+
+    # Map each unique route node to its first occurrence index and cumulative distance.
+    node_to_route_pos: Dict[int, Tuple[int, float]] = {}
+    for i, rn in enumerate(route_nodes):
+        n = int(rn)
+        if n not in node_to_route_pos:
+            node_to_route_pos[n] = (i, cumulative_distances[i])
+
+    # Assign human-readable label to each snapped input node.
+    n_snapped = len(snapped_nodes)
+    snapped_to_type: Dict[int, str] = {}
+    for i, sn in enumerate(snapped_nodes):
+        sn_int = int(sn)
+        if sn_int in snapped_to_type:
+            # Prefer "start" / "end" labels over waypoint labels when a node
+            # is reused across multiple input positions.
+            continue
+        if i == 0:
+            label = "start"
+        elif i == n_snapped - 1:
+            label = "end"
+        else:
+            label = f"waypoint_{i}"
+        snapped_to_type[sn_int] = label
+
+    traffic_signals = points_of_interest.get("traffic_signals", [])
+    stop_signs = points_of_interest.get("stop_signs", [])
+    crossings = points_of_interest.get("crossings", [])
+
+    details: List[Dict[str, Any]] = []
+    seen_nodes: set = set()
+
+    for node in unique_nodes:
+        if undirected.degree(node) < 3:
+            continue
+        if node in seen_nodes:
+            continue
+        seen_nodes.add(node)
+
+        lat = float(graph.nodes[node]["y"])
+        lon = float(graph.nodes[node]["x"])
+        node_degree = int(undirected.degree(node))
+
+        edge_info = _collect_intersection_edge_info(graph, node)
+
+        is_signalized = any(
+            is_near(lat, lon, float(p["latitude"]), float(p["longitude"]), proximity_threshold_m)
+            for p in traffic_signals
+            if p.get("latitude") is not None and p.get("longitude") is not None
+        )
+        is_stop_controlled = any(
+            is_near(lat, lon, float(p["latitude"]), float(p["longitude"]), proximity_threshold_m)
+            for p in stop_signs
+            if p.get("latitude") is not None and p.get("longitude") is not None
+        )
+        has_crossing_nearby = any(
+            is_near(lat, lon, float(p["latitude"]), float(p["longitude"]), proximity_threshold_m)
+            for p in crossings
+            if p.get("latitude") is not None and p.get("longitude") is not None
+        )
+
+        route_pos_idx, dist_from_start = node_to_route_pos.get(node, (-1, 0.0))
+
+        input_point_type = snapped_to_type.get(node, "none")
+        is_input_point = input_point_type != "none"
+
+        details.append(
+            {
+                "node_id": node,
+                "latitude": lat,
+                "longitude": lon,
+                "node_degree": node_degree,
+                "connected_edge_count": edge_info["edge_count"],
+                "connected_highway_types": edge_info["highway_types"],
+                "connected_road_names": edge_info["road_names"],
+                "connected_oneway_count": edge_info["oneway_count"],
+                "connected_twoway_count": edge_info["twoway_count"],
+                "is_signalized": is_signalized,
+                "is_stop_controlled": is_stop_controlled,
+                "has_crossing_nearby": has_crossing_nearby,
+                "route_position_index": route_pos_idx,
+                "distance_from_start_m": round(dist_from_start, 2),
+                "is_input_point": is_input_point,
+                "input_point_type": input_point_type,
+            }
+        )
+
+    return details
+
+
 def build_route_metrics(
     route_edges_gdf: gpd.GeoDataFrame,
     route_geometry_topology: Dict[str, Any],
@@ -1298,6 +1485,30 @@ def classify_driving_state(
     }
 
 
+def _segment_waypoint_density(
+    geometry: Any,
+    segment_length_m: float,
+) -> Tuple[int, Optional[float], Optional[float]]:
+    """
+    Return ``(point_count, density_per_100m, density_per_km)`` for one segment.
+
+    *point_count* is the number of coordinate vertices in the polyline
+    (``len(list(geometry.coords))``).  Density values are ``None`` when the
+    segment is shorter than 1 m to avoid division-by-zero noise.
+    """
+    if geometry is None:
+        return 0, None, None
+    try:
+        point_count = len(list(geometry.coords))
+    except Exception:
+        return 0, None, None
+    if segment_length_m < 1.0:
+        return point_count, None, None
+    density_per_100m = round(point_count / (segment_length_m / 100.0), 6)
+    density_per_km = round(point_count / (segment_length_m / 1000.0), 6)
+    return point_count, density_per_100m, density_per_km
+
+
 def build_edge_attributes(
     route_edges_gdf: gpd.GeoDataFrame, points_of_interest: Optional[Dict[str, List[Dict[str, Any]]]] = None
 ) -> List[Dict[str, Any]]:
@@ -1342,9 +1553,43 @@ def build_edge_attributes(
         segment.pop("_center_lat", None)
         segment.pop("_center_lon", None)
 
+        pt_count, d_100m, d_km = _segment_waypoint_density(
+            row.get("geometry"), float(row.get("segment_length_m", 0.0))
+        )
+        segment["geometry_point_count"] = pt_count
+        segment["waypoint_density_per_100m"] = d_100m
+        segment["waypoint_density_per_km"] = d_km
+
         rows.append(segment)
         prev_segment = segment
     return rows
+
+
+def build_waypoint_density_summary(
+    edge_attributes: List[Dict[str, Any]],
+) -> Dict[str, Optional[float]]:
+    """
+    Aggregate ``waypoint_density_per_km`` across all segments.
+
+    Segments whose density is ``None`` (too short to compute) are excluded from
+    the aggregation.  All three values are ``None`` when no valid densities exist.
+    """
+    densities = [
+        seg["waypoint_density_per_km"]
+        for seg in edge_attributes
+        if seg.get("waypoint_density_per_km") is not None
+    ]
+    if not densities:
+        return {
+            "avg_density_per_km": None,
+            "max_density_per_km": None,
+            "min_density_per_km": None,
+        }
+    return {
+        "avg_density_per_km": round(sum(densities) / len(densities), 6),
+        "max_density_per_km": round(max(densities), 6),
+        "min_density_per_km": round(min(densities), 6),
+    }
 
 
 def build_curvature_analysis(route_edges_gdf: gpd.GeoDataFrame) -> List[Dict[str, Any]]:
@@ -1361,6 +1606,285 @@ def build_curvature_analysis(route_edges_gdf: gpd.GeoDataFrame) -> List[Dict[str
             }
         )
     return analysis
+
+
+def classify_density(density_per_km: Optional[float]) -> str:
+    """Bin a per-km waypoint density into low / medium / high."""
+    if density_per_km is None:
+        return "unknown"
+    if density_per_km < 5.0:
+        return "low"
+    if density_per_km <= 15.0:
+        return "medium"
+    return "high"
+
+
+def classify_curve_severity(curvature_class: Optional[str]) -> str:
+    """Map a curvature class string to a CAV severity label."""
+    if curvature_class == "sharp":
+        return "high"
+    if curvature_class == "moderate":
+        return "moderate"
+    return "low"
+
+
+def compute_advisory_speed(speed_kph: Optional[float], curvature_class: Optional[str]) -> Optional[float]:
+    """
+    Return the recommended speed for a segment given its curvature class.
+
+    - sharp    → 50 % of speed limit
+    - moderate → 70 % of speed limit
+    - straight → unchanged
+    """
+    if speed_kph is None:
+        return None
+    speed = float(speed_kph)
+    if curvature_class == "sharp":
+        return round(speed * 0.5, 1)
+    if curvature_class == "moderate":
+        return round(speed * 0.7, 1)
+    return round(speed, 1)
+
+
+def build_cav_output(route_output: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Transform a raw ``route_output`` dictionary into a structured CAV/AV JSON
+    containing driving states, intersection events, upcoming-event timelines,
+    and density analysis.
+
+    The source ``route_output`` is never mutated.
+    """
+    route_name = route_output.get("route_name", "unknown")
+    metrics = route_output.get("route_metrics", {})
+    edge_attrs: List[Dict[str, Any]] = route_output.get("edge_attributes", [])
+    intersection_details: List[Dict[str, Any]] = route_output.get("intersection_details", [])
+    density_summary: Dict[str, Any] = route_output.get("waypoint_density_summary", {})
+
+    # ------------------------------------------------------------------
+    # Route summary + difficulty heuristic
+    # ------------------------------------------------------------------
+    total_length_km = metrics.get("length_km")
+    estimated_time_min = metrics.get("travel_time_min")
+    segment_count = len(edge_attrs)
+    intersection_count = len(intersection_details)
+
+    sharp_count = sum(1 for s in edge_attrs if s.get("curvature_class") == "sharp")
+    moderate_count = sum(1 for s in edge_attrs if s.get("curvature_class") == "moderate")
+    intersection_density = (
+        intersection_count / float(total_length_km)
+        if total_length_km and float(total_length_km) > 0
+        else 0.0
+    )
+
+    if sharp_count > 5 or intersection_density > 3.0:
+        difficulty_level = "high"
+    elif moderate_count > 10 or sharp_count > 0 or intersection_density > 1.0:
+        difficulty_level = "medium"
+    else:
+        difficulty_level = "low"
+
+    route_summary: Dict[str, Any] = {
+        "total_length_km": round(float(total_length_km), 3) if total_length_km is not None else None,
+        "estimated_time_min": round(float(estimated_time_min), 2) if estimated_time_min is not None else None,
+        "segment_count": segment_count,
+        "intersection_count": intersection_count,
+        "difficulty_level": difficulty_level,
+    }
+
+    # ------------------------------------------------------------------
+    # Segments
+    # ------------------------------------------------------------------
+    cav_segments: List[Dict[str, Any]] = []
+    for seg in sorted(edge_attrs, key=lambda s: s.get("segment_id", 0)):
+        length_m = float(seg.get("segment_length_m") or 0.0)
+        speed = seg.get("maxspeed_kph")
+        curvature_class = seg.get("curvature_class")
+        curvature_deg = seg.get("curvature_deg")
+        density_km = seg.get("waypoint_density_per_km")
+        driving_state = seg.get("driving_state") or {}
+
+        geom_ds = driving_state.get("geometry", "straight")
+        if geom_ds == "right_turn":
+            turn_type = "right"
+        elif geom_ds == "left_turn":
+            turn_type = "left"
+        else:
+            turn_type = "straight"
+
+        road_type = driving_state.get("topology", "road_segment")
+
+        if curvature_class == "sharp":
+            recommended_action = "prepare_turn"
+            advisory_reason = "sharp turn"
+        elif curvature_class == "moderate":
+            recommended_action = "slow_down"
+            advisory_reason = "moderate curve"
+        else:
+            recommended_action = "maintain_speed"
+            advisory_reason = "straight road"
+
+        cav_segments.append(
+            {
+                "segment_id": seg.get("segment_id"),
+                "length_m": round(length_m, 2),
+                "road_info": {
+                    "type": seg.get("primary_highway"),
+                    "lanes": seg.get("lanes_count"),
+                    "speed_limit_kph": round(float(speed), 1) if speed is not None else None,
+                },
+                "geometry": {
+                    "type": curvature_class or "straight",
+                    "curvature_deg": (
+                        round(float(curvature_deg), 2) if curvature_deg is not None else None
+                    ),
+                },
+                "density": {
+                    "waypoint_density_per_km": (
+                        round(float(density_km), 4) if density_km is not None else None
+                    ),
+                    "classification": classify_density(density_km),
+                },
+                "state": {
+                    "turn_type": turn_type,
+                    "road_type": road_type,
+                    "recommended_action": recommended_action,
+                },
+                "advisory": {
+                    "speed_advisory_kph": compute_advisory_speed(speed, curvature_class),
+                    "reason": advisory_reason,
+                },
+            }
+        )
+
+    # ------------------------------------------------------------------
+    # Intersections
+    # ------------------------------------------------------------------
+    cav_intersections: List[Dict[str, Any]] = []
+    for ix in sorted(intersection_details, key=lambda x: x.get("distance_from_start_m", 0)):
+        node_degree = int(ix.get("node_degree") or 0)
+        is_signalized = bool(ix.get("is_signalized"))
+        is_stop_controlled = bool(ix.get("is_stop_controlled"))
+        dist_m = ix.get("distance_from_start_m")
+
+        ix_type = "4-way" if node_degree >= 4 else "3-way"
+
+        if is_signalized:
+            control = "signal"
+            action = "stop"
+            reason = "traffic signal present"
+            priority = "high"
+        elif is_stop_controlled:
+            control = "stop"
+            action = "stop"
+            reason = "stop sign present"
+            priority = "high"
+        elif node_degree >= 4:
+            control = "none"
+            action = "yield"
+            reason = "uncontrolled 4-way intersection"
+            priority = "medium"
+        else:
+            control = "none"
+            action = "proceed"
+            reason = "uncontrolled 3-way intersection"
+            priority = "low"
+
+        cav_intersections.append(
+            {
+                "node_id": ix.get("node_id"),
+                "distance_from_start_m": (
+                    round(float(dist_m), 2) if dist_m is not None else None
+                ),
+                "type": ix_type,
+                "connected_roads": ix.get("connected_road_names") or [],
+                "control": control,
+                "state": {
+                    "event": "approaching_intersection",
+                    "priority": priority,
+                },
+                "advisory": {
+                    "action": action,
+                    "reason": reason,
+                },
+            }
+        )
+
+    # ------------------------------------------------------------------
+    # Upcoming events (turns + intersections), sorted by distance
+    # ------------------------------------------------------------------
+    upcoming_events: List[Dict[str, Any]] = []
+
+    cumulative_m = 0.0
+    for seg in sorted(edge_attrs, key=lambda s: s.get("segment_id", 0)):
+        curvature_class = seg.get("curvature_class")
+        length_m = float(seg.get("segment_length_m") or 0.0)
+        if curvature_class in ("moderate", "sharp"):
+            upcoming_events.append(
+                {
+                    "distance_ahead_m": round(cumulative_m, 2),
+                    "type": "turn",
+                    "severity": classify_curve_severity(curvature_class),
+                    "recommended_speed_kph": compute_advisory_speed(
+                        seg.get("maxspeed_kph"), curvature_class
+                    ),
+                }
+            )
+        cumulative_m += length_m
+
+    for ix in intersection_details:
+        dist_m = ix.get("distance_from_start_m")
+        if dist_m is None:
+            continue
+        node_degree = int(ix.get("node_degree") or 0)
+        is_signalized = bool(ix.get("is_signalized"))
+        is_stop_controlled = bool(ix.get("is_stop_controlled"))
+
+        if is_signalized or is_stop_controlled:
+            severity = "high"
+            action = "stop"
+        elif node_degree >= 4:
+            severity = "medium"
+            action = "yield"
+        else:
+            severity = "low"
+            action = "proceed"
+
+        upcoming_events.append(
+            {
+                "distance_ahead_m": round(float(dist_m), 2),
+                "type": "intersection",
+                "severity": severity,
+                "action": action,
+            }
+        )
+
+    upcoming_events.sort(key=lambda e: e.get("distance_ahead_m", 0.0))
+
+    # ------------------------------------------------------------------
+    # Density analysis
+    # ------------------------------------------------------------------
+    avg_density = density_summary.get("avg_density_per_km")
+    max_density = density_summary.get("max_density_per_km")
+    min_density = density_summary.get("min_density_per_km")
+    high_density_count = sum(
+        1 for s in edge_attrs if classify_density(s.get("waypoint_density_per_km")) == "high"
+    )
+
+    density_analysis: Dict[str, Any] = {
+        "avg_density_per_km": round(float(avg_density), 4) if avg_density is not None else None,
+        "max_density_per_km": round(float(max_density), 4) if max_density is not None else None,
+        "min_density_per_km": round(float(min_density), 4) if min_density is not None else None,
+        "high_density_segment_count": high_density_count,
+    }
+
+    return {
+        "route_name": route_name,
+        "route_summary": route_summary,
+        "segments": cav_segments,
+        "intersections": cav_intersections,
+        "upcoming_events": upcoming_events,
+        "density_analysis": density_analysis,
+    }
 
 
 def _export_optional_map(
@@ -1425,7 +1949,8 @@ def export_outputs(
     export_map: bool = True,
 ) -> Dict[str, str]:
     """
-    Export one JSON output and optional map for the selected route.
+    Export the raw OSM route JSON, an optional Folium HTML map, and a
+    structured CAV/AV JSON file for the selected route.
     """
     out_dir = Path(output_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -1433,9 +1958,14 @@ def export_outputs(
     route_slug = _slugify_route_name(route_name)
     summary_path = out_dir / f"{route_slug}.json"
     map_path = out_dir / f"{route_slug}_map.html"
+    cav_path = out_dir / f"{route_slug}_cav.json"
 
     with open(summary_path, "w", encoding="utf-8") as fp:
         json.dump(_jsonify_records(route_output), fp, ensure_ascii=True, indent=2, sort_keys=True)
+
+    cav_output = build_cav_output(route_output)
+    with open(cav_path, "w", encoding="utf-8") as fp:
+        json.dump(_jsonify_records(cav_output), fp, ensure_ascii=True, indent=2, sort_keys=True)
 
     exported_map = False
     if export_map:
@@ -1448,6 +1978,7 @@ def export_outputs(
 
     return {
         "route_output_json": str(summary_path),
+        "cav_output_json": str(cav_path),
         "route_map_html": (str(map_path) if exported_map else "not_exported_folium_missing"),
     }
 
@@ -1472,7 +2003,8 @@ def _human_report(route_output: Dict[str, Any], exported_paths: Dict[str, str]) 
         f"traffic calming={control['traffic_calming']}, roundabouts={control['roundabouts']}\n"
         "Outputs:\n"
         f"- route_output.json: {exported_paths['route_output_json']}\n"
-        f"- route_map.html: {exported_paths['route_map_html']}\n"
+        f"- cav_output.json:   {exported_paths['cav_output_json']}\n"
+        f"- route_map.html:    {exported_paths['route_map_html']}\n"
     )
 
 
@@ -1524,8 +2056,17 @@ def main(
         corridor_features_gdf=corridor_features,
         route_edges_gdf=route_edges,
     )
+    intersection_details = build_intersection_details(
+        route_nodes=build_result.route_nodes,
+        graph=build_result.graph,
+        points_of_interest=points_of_interest,
+        snapped_nodes=build_result.snapped_nodes,
+        input_points=build_result.input_points,
+        proximity_threshold_m=30.0,
+    )
     route_metrics = build_route_metrics(route_edges, edge_summary["route_geometry_topology"])
     edge_attributes = build_edge_attributes(route_edges, points_of_interest=points_of_interest)
+    waypoint_density_summary = build_waypoint_density_summary(edge_attributes)
     curvature_analysis = build_curvature_analysis(route_edges)
 
     route_output: Dict[str, Any] = {
@@ -1538,7 +2079,9 @@ def main(
         },
         "route_metrics": route_metrics,
         "points_of_interest": points_of_interest,
+        "intersection_details": intersection_details,
         "edge_attributes": edge_attributes,
+        "waypoint_density_summary": waypoint_density_summary,
         "curvature_analysis": curvature_analysis,
         "corridor_summary": corridor_summary,
         "snap_summary": build_result.snapped_info.to_dict(orient="records"),
