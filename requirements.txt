@@ -7,3 +7,7 @@ pyproj>=3.6
 pyogrio>=0.12
 requests>=2.31
 folium>=0.20
+pandas==3.0.2
+shapely==2.1.2
+geopandas==1.1.3
+
