@@ -1,0 +1,1252 @@
+{
+  "density_analysis": {
+    "avg_density_per_km": 11.4431,
+    "high_density_segment_count": 5,
+    "max_density_per_km": 35.5649,
+    "min_density_per_km": 1.7613
+  },
+  "intersections": [
+    {
+      "advisory": {
+        "action": "proceed",
+        "reason": "uncontrolled 3-way intersection"
+      },
+      "connected_roads": [
+        "County Road 316",
+        "State Highway 36 North"
+      ],
+      "control": "none",
+      "distance_from_start_m": 0.0,
+      "node_id": 5859770783,
+      "state": {
+        "event": "approaching_intersection",
+        "priority": "low"
+      },
+      "type": "3-way"
+    },
+    {
+      "advisory": {
+        "action": "proceed",
+        "reason": "uncontrolled 3-way intersection"
+      },
+      "connected_roads": [
+        "County Road 316"
+      ],
+      "control": "none",
+      "distance_from_start_m": 2525.57,
+      "node_id": 222733788,
+      "state": {
+        "event": "approaching_intersection",
+        "priority": "low"
+      },
+      "type": "3-way"
+    },
+    {
+      "advisory": {
+        "action": "proceed",
+        "reason": "uncontrolled 3-way intersection"
+      },
+      "connected_roads": [
+        "County Road 316"
+      ],
+      "control": "none",
+      "distance_from_start_m": 2726.02,
+      "node_id": 222737076,
+      "state": {
+        "event": "approaching_intersection",
+        "priority": "low"
+      },
+      "type": "3-way"
+    },
+    {
+      "advisory": {
+        "action": "proceed",
+        "reason": "uncontrolled 3-way intersection"
+      },
+      "connected_roads": [
+        "County Road 316"
+      ],
+      "control": "none",
+      "distance_from_start_m": 2838.49,
+      "node_id": 222707957,
+      "state": {
+        "event": "approaching_intersection",
+        "priority": "low"
+      },
+      "type": "3-way"
+    },
+    {
+      "advisory": {
+        "action": "proceed",
+        "reason": "uncontrolled 3-way intersection"
+      },
+      "connected_roads": [
+        "County Road 315",
+        "County Road 316"
+      ],
+      "control": "none",
+      "distance_from_start_m": 4149.89,
+      "node_id": 222793358,
+      "state": {
+        "event": "approaching_intersection",
+        "priority": "low"
+      },
+      "type": "3-way"
+    },
+    {
+      "advisory": {
+        "action": "proceed",
+        "reason": "uncontrolled 3-way intersection"
+      },
+      "connected_roads": [
+        "County Road 316"
+      ],
+      "control": "none",
+      "distance_from_start_m": 7888.36,
+      "node_id": 222744698,
+      "state": {
+        "event": "approaching_intersection",
+        "priority": "low"
+      },
+      "type": "3-way"
+    },
+    {
+      "advisory": {
+        "action": "proceed",
+        "reason": "uncontrolled 3-way intersection"
+      },
+      "connected_roads": [
+        "County Road 309",
+        "County Road 316"
+      ],
+      "control": "none",
+      "distance_from_start_m": 8366.33,
+      "node_id": 222793310,
+      "state": {
+        "event": "approaching_intersection",
+        "priority": "low"
+      },
+      "type": "3-way"
+    },
+    {
+      "advisory": {
+        "action": "proceed",
+        "reason": "uncontrolled 3-way intersection"
+      },
+      "connected_roads": [
+        "County Road 316"
+      ],
+      "control": "none",
+      "distance_from_start_m": 8676.38,
+      "node_id": 222740454,
+      "state": {
+        "event": "approaching_intersection",
+        "priority": "low"
+      },
+      "type": "3-way"
+    },
+    {
+      "advisory": {
+        "action": "proceed",
+        "reason": "uncontrolled 3-way intersection"
+      },
+      "connected_roads": [
+        "County Road 316"
+      ],
+      "control": "none",
+      "distance_from_start_m": 8945.89,
+      "node_id": 222740433,
+      "state": {
+        "event": "approaching_intersection",
+        "priority": "low"
+      },
+      "type": "3-way"
+    },
+    {
+      "advisory": {
+        "action": "proceed",
+        "reason": "uncontrolled 3-way intersection"
+      },
+      "connected_roads": [
+        "County Road 310",
+        "County Road 316"
+      ],
+      "control": "none",
+      "distance_from_start_m": 9550.92,
+      "node_id": 222791438,
+      "state": {
+        "event": "approaching_intersection",
+        "priority": "low"
+      },
+      "type": "3-way"
+    },
+    {
+      "advisory": {
+        "action": "proceed",
+        "reason": "uncontrolled 3-way intersection"
+      },
+      "connected_roads": [
+        "County Road 316",
+        "County Road 317"
+      ],
+      "control": "none",
+      "distance_from_start_m": 10686.45,
+      "node_id": 222793250,
+      "state": {
+        "event": "approaching_intersection",
+        "priority": "low"
+      },
+      "type": "3-way"
+    },
+    {
+      "advisory": {
+        "action": "proceed",
+        "reason": "uncontrolled 3-way intersection"
+      },
+      "connected_roads": [
+        "County Road 316"
+      ],
+      "control": "none",
+      "distance_from_start_m": 11758.03,
+      "node_id": 222735457,
+      "state": {
+        "event": "approaching_intersection",
+        "priority": "low"
+      },
+      "type": "3-way"
+    },
+    {
+      "advisory": {
+        "action": "yield",
+        "reason": "uncontrolled 4-way intersection"
+      },
+      "connected_roads": [
+        "County Road 316",
+        "Farm to Market Road 908"
+      ],
+      "control": "none",
+      "distance_from_start_m": 13726.86,
+      "node_id": 222748485,
+      "state": {
+        "event": "approaching_intersection",
+        "priority": "medium"
+      },
+      "type": "4-way"
+    },
+    {
+      "advisory": {
+        "action": "proceed",
+        "reason": "uncontrolled 3-way intersection"
+      },
+      "connected_roads": [
+        "County Road 318",
+        "Farm to Market Road 908"
+      ],
+      "control": "none",
+      "distance_from_start_m": 15251.81,
+      "node_id": 2374340945,
+      "state": {
+        "event": "approaching_intersection",
+        "priority": "low"
+      },
+      "type": "3-way"
+    },
+    {
+      "advisory": {
+        "action": "proceed",
+        "reason": "uncontrolled 3-way intersection"
+      },
+      "connected_roads": [
+        "County Road 317",
+        "Farm to Market Road 908"
+      ],
+      "control": "none",
+      "distance_from_start_m": 16506.41,
+      "node_id": 2374340941,
+      "state": {
+        "event": "approaching_intersection",
+        "priority": "low"
+      },
+      "type": "3-way"
+    },
+    {
+      "advisory": {
+        "action": "proceed",
+        "reason": "uncontrolled 3-way intersection"
+      },
+      "connected_roads": [
+        "County Road 319",
+        "Farm to Market Road 908"
+      ],
+      "control": "none",
+      "distance_from_start_m": 17068.5,
+      "node_id": 222793990,
+      "state": {
+        "event": "approaching_intersection",
+        "priority": "low"
+      },
+      "type": "3-way"
+    },
+    {
+      "advisory": {
+        "action": "proceed",
+        "reason": "uncontrolled 3-way intersection"
+      },
+      "connected_roads": [
+        "Farm to Market Road 908"
+      ],
+      "control": "none",
+      "distance_from_start_m": 17571.75,
+      "node_id": 222733813,
+      "state": {
+        "event": "approaching_intersection",
+        "priority": "low"
+      },
+      "type": "3-way"
+    },
+    {
+      "advisory": {
+        "action": "proceed",
+        "reason": "uncontrolled 3-way intersection"
+      },
+      "connected_roads": [
+        "Farm to Market Road 908"
+      ],
+      "control": "none",
+      "distance_from_start_m": 19875.3,
+      "node_id": 222747187,
+      "state": {
+        "event": "approaching_intersection",
+        "priority": "low"
+      },
+      "type": "3-way"
+    },
+    {
+      "advisory": {
+        "action": "proceed",
+        "reason": "uncontrolled 3-way intersection"
+      },
+      "connected_roads": [
+        "County Road 112",
+        "Farm to Market Road 908"
+      ],
+      "control": "none",
+      "distance_from_start_m": 20570.9,
+      "node_id": 222777147,
+      "state": {
+        "event": "approaching_intersection",
+        "priority": "low"
+      },
+      "type": "3-way"
+    },
+    {
+      "advisory": {
+        "action": "proceed",
+        "reason": "uncontrolled 3-way intersection"
+      },
+      "connected_roads": [
+        "County Road 316",
+        "Farm to Market Road 908"
+      ],
+      "control": "none",
+      "distance_from_start_m": 20993.31,
+      "node_id": 222777142,
+      "state": {
+        "event": "approaching_intersection",
+        "priority": "low"
+      },
+      "type": "3-way"
+    },
+    {
+      "advisory": {
+        "action": "proceed",
+        "reason": "uncontrolled 3-way intersection"
+      },
+      "connected_roads": [
+        "Farm to Market Road 908",
+        "Pecan Drive"
+      ],
+      "control": "none",
+      "distance_from_start_m": 22340.02,
+      "node_id": 2374340889,
+      "state": {
+        "event": "approaching_intersection",
+        "priority": "low"
+      },
+      "type": "3-way"
+    },
+    {
+      "advisory": {
+        "action": "proceed",
+        "reason": "uncontrolled 3-way intersection"
+      },
+      "connected_roads": [
+        "Farm to Market Road 908",
+        "Yaupon Drive"
+      ],
+      "control": "none",
+      "distance_from_start_m": 22971.44,
+      "node_id": 2374340882,
+      "state": {
+        "event": "approaching_intersection",
+        "priority": "low"
+      },
+      "type": "3-way"
+    },
+    {
+      "advisory": {
+        "action": "proceed",
+        "reason": "uncontrolled 3-way intersection"
+      },
+      "connected_roads": [
+        "Farm to Market Road 908"
+      ],
+      "control": "none",
+      "distance_from_start_m": 24318.37,
+      "node_id": 222740153,
+      "state": {
+        "event": "approaching_intersection",
+        "priority": "low"
+      },
+      "type": "3-way"
+    },
+    {
+      "advisory": {
+        "action": "yield",
+        "reason": "uncontrolled 4-way intersection"
+      },
+      "connected_roads": [
+        "Farm to Market Road 908",
+        "State Highway 21 West"
+      ],
+      "control": "none",
+      "distance_from_start_m": 24529.68,
+      "node_id": 222777063,
+      "state": {
+        "event": "approaching_intersection",
+        "priority": "medium"
+      },
+      "type": "4-way"
+    }
+  ],
+  "route_name": "FM 908 to CR 316",
+  "route_summary": {
+    "difficulty_level": "medium",
+    "estimated_time_min": 15.82,
+    "intersection_count": 24,
+    "segment_count": 23,
+    "total_length_km": 24.56
+  },
+  "segments": [
+    {
+      "advisory": {
+        "reason": "straight road",
+        "speed_advisory_kph": 40.0
+      },
+      "density": {
+        "classification": "medium",
+        "waypoint_density_per_km": 9.1069
+      },
+      "geometry": {
+        "curvature_deg": 0.0,
+        "type": "straight"
+      },
+      "length_m": 2525.57,
+      "road_info": {
+        "lanes": 1,
+        "speed_limit_kph": 40.0,
+        "type": "residential"
+      },
+      "segment_id": 1,
+      "state": {
+        "recommended_action": "maintain_speed",
+        "road_type": "road_segment",
+        "turn_type": "straight"
+      }
+    },
+    {
+      "advisory": {
+        "reason": "straight road",
+        "speed_advisory_kph": 40.0
+      },
+      "density": {
+        "classification": "high",
+        "waypoint_density_per_km": 19.9554
+      },
+      "geometry": {
+        "curvature_deg": 2.19,
+        "type": "straight"
+      },
+      "length_m": 200.45,
+      "road_info": {
+        "lanes": 1,
+        "speed_limit_kph": 40.0,
+        "type": "residential"
+      },
+      "segment_id": 2,
+      "state": {
+        "recommended_action": "maintain_speed",
+        "road_type": "road_segment",
+        "turn_type": "straight"
+      }
+    },
+    {
+      "advisory": {
+        "reason": "moderate curve",
+        "speed_advisory_kph": 28.0
+      },
+      "density": {
+        "classification": "high",
+        "waypoint_density_per_km": 35.5649
+      },
+      "geometry": {
+        "curvature_deg": 16.54,
+        "type": "moderate"
+      },
+      "length_m": 112.47,
+      "road_info": {
+        "lanes": 1,
+        "speed_limit_kph": 40.0,
+        "type": "residential"
+      },
+      "segment_id": 3,
+      "state": {
+        "recommended_action": "slow_down",
+        "road_type": "road_segment",
+        "turn_type": "right"
+      }
+    },
+    {
+      "advisory": {
+        "reason": "straight road",
+        "speed_advisory_kph": 40.0
+      },
+      "density": {
+        "classification": "medium",
+        "waypoint_density_per_km": 6.1003
+      },
+      "geometry": {
+        "curvature_deg": 8.35,
+        "type": "straight"
+      },
+      "length_m": 1311.4,
+      "road_info": {
+        "lanes": 1,
+        "speed_limit_kph": 40.0,
+        "type": "residential"
+      },
+      "segment_id": 4,
+      "state": {
+        "recommended_action": "maintain_speed",
+        "road_type": "road_segment",
+        "turn_type": "straight"
+      }
+    },
+    {
+      "advisory": {
+        "reason": "moderate curve",
+        "speed_advisory_kph": 28.0
+      },
+      "density": {
+        "classification": "low",
+        "waypoint_density_per_km": 4.5473
+      },
+      "geometry": {
+        "curvature_deg": 23.17,
+        "type": "moderate"
+      },
+      "length_m": 3738.47,
+      "road_info": {
+        "lanes": 1,
+        "speed_limit_kph": 40.0,
+        "type": "residential"
+      },
+      "segment_id": 5,
+      "state": {
+        "recommended_action": "slow_down",
+        "road_type": "road_segment",
+        "turn_type": "left"
+      }
+    },
+    {
+      "advisory": {
+        "reason": "moderate curve",
+        "speed_advisory_kph": 28.0
+      },
+      "density": {
+        "classification": "medium",
+        "waypoint_density_per_km": 6.2766
+      },
+      "geometry": {
+        "curvature_deg": 21.4,
+        "type": "moderate"
+      },
+      "length_m": 477.96,
+      "road_info": {
+        "lanes": 1,
+        "speed_limit_kph": 40.0,
+        "type": "residential"
+      },
+      "segment_id": 6,
+      "state": {
+        "recommended_action": "slow_down",
+        "road_type": "road_segment",
+        "turn_type": "left"
+      }
+    },
+    {
+      "advisory": {
+        "reason": "straight road",
+        "speed_advisory_kph": 40.0
+      },
+      "density": {
+        "classification": "medium",
+        "waypoint_density_per_km": 9.6757
+      },
+      "geometry": {
+        "curvature_deg": 0.97,
+        "type": "straight"
+      },
+      "length_m": 310.06,
+      "road_info": {
+        "lanes": 1,
+        "speed_limit_kph": 40.0,
+        "type": "residential"
+      },
+      "segment_id": 7,
+      "state": {
+        "recommended_action": "maintain_speed",
+        "road_type": "road_segment",
+        "turn_type": "straight"
+      }
+    },
+    {
+      "advisory": {
+        "reason": "straight road",
+        "speed_advisory_kph": 40.0
+      },
+      "density": {
+        "classification": "medium",
+        "waypoint_density_per_km": 11.1312
+      },
+      "geometry": {
+        "curvature_deg": 2.6,
+        "type": "straight"
+      },
+      "length_m": 269.51,
+      "road_info": {
+        "lanes": 1,
+        "speed_limit_kph": 40.0,
+        "type": "residential"
+      },
+      "segment_id": 8,
+      "state": {
+        "recommended_action": "maintain_speed",
+        "road_type": "road_segment",
+        "turn_type": "straight"
+      }
+    },
+    {
+      "advisory": {
+        "reason": "straight road",
+        "speed_advisory_kph": 40.0
+      },
+      "density": {
+        "classification": "low",
+        "waypoint_density_per_km": 3.3056
+      },
+      "geometry": {
+        "curvature_deg": 3.8,
+        "type": "straight"
+      },
+      "length_m": 605.03,
+      "road_info": {
+        "lanes": 1,
+        "speed_limit_kph": 40.0,
+        "type": "residential"
+      },
+      "segment_id": 9,
+      "state": {
+        "recommended_action": "maintain_speed",
+        "road_type": "road_segment",
+        "turn_type": "straight"
+      }
+    },
+    {
+      "advisory": {
+        "reason": "straight road",
+        "speed_advisory_kph": 40.0
+      },
+      "density": {
+        "classification": "low",
+        "waypoint_density_per_km": 1.7613
+      },
+      "geometry": {
+        "curvature_deg": 0.45,
+        "type": "straight"
+      },
+      "length_m": 1135.52,
+      "road_info": {
+        "lanes": 1,
+        "speed_limit_kph": 40.0,
+        "type": "residential"
+      },
+      "segment_id": 10,
+      "state": {
+        "recommended_action": "maintain_speed",
+        "road_type": "road_segment",
+        "turn_type": "straight"
+      }
+    },
+    {
+      "advisory": {
+        "reason": "straight road",
+        "speed_advisory_kph": 40.0
+      },
+      "density": {
+        "classification": "low",
+        "waypoint_density_per_km": 2.7996
+      },
+      "geometry": {
+        "curvature_deg": 0.74,
+        "type": "straight"
+      },
+      "length_m": 1071.58,
+      "road_info": {
+        "lanes": 1,
+        "speed_limit_kph": 40.0,
+        "type": "residential"
+      },
+      "segment_id": 11,
+      "state": {
+        "recommended_action": "maintain_speed",
+        "road_type": "road_segment",
+        "turn_type": "straight"
+      }
+    },
+    {
+      "advisory": {
+        "reason": "straight road",
+        "speed_advisory_kph": 40.0
+      },
+      "density": {
+        "classification": "low",
+        "waypoint_density_per_km": 4.0633
+      },
+      "geometry": {
+        "curvature_deg": 1.2,
+        "type": "straight"
+      },
+      "length_m": 1968.83,
+      "road_info": {
+        "lanes": 1,
+        "speed_limit_kph": 40.0,
+        "type": "residential"
+      },
+      "segment_id": 12,
+      "state": {
+        "recommended_action": "maintain_speed",
+        "road_type": "road_segment",
+        "turn_type": "straight"
+      }
+    },
+    {
+      "advisory": {
+        "reason": "sharp turn",
+        "speed_advisory_kph": 48.3
+      },
+      "density": {
+        "classification": "medium",
+        "waypoint_density_per_km": 8.5249
+      },
+      "geometry": {
+        "curvature_deg": 131.61,
+        "type": "sharp"
+      },
+      "length_m": 1524.95,
+      "road_info": {
+        "lanes": 2,
+        "speed_limit_kph": 96.6,
+        "type": "secondary"
+      },
+      "segment_id": 13,
+      "state": {
+        "recommended_action": "prepare_turn",
+        "road_type": "road_segment",
+        "turn_type": "left"
+      }
+    },
+    {
+      "advisory": {
+        "reason": "straight road",
+        "speed_advisory_kph": 96.6
+      },
+      "density": {
+        "classification": "medium",
+        "waypoint_density_per_km": 14.3471
+      },
+      "geometry": {
+        "curvature_deg": 5.34,
+        "type": "straight"
+      },
+      "length_m": 1254.61,
+      "road_info": {
+        "lanes": 2,
+        "speed_limit_kph": 96.6,
+        "type": "secondary"
+      },
+      "segment_id": 14,
+      "state": {
+        "recommended_action": "maintain_speed",
+        "road_type": "road_segment",
+        "turn_type": "straight"
+      }
+    },
+    {
+      "advisory": {
+        "reason": "moderate curve",
+        "speed_advisory_kph": 67.6
+      },
+      "density": {
+        "classification": "high",
+        "waypoint_density_per_km": 16.0118
+      },
+      "geometry": {
+        "curvature_deg": 32.36,
+        "type": "moderate"
+      },
+      "length_m": 562.09,
+      "road_info": {
+        "lanes": 2,
+        "speed_limit_kph": 96.6,
+        "type": "secondary"
+      },
+      "segment_id": 15,
+      "state": {
+        "recommended_action": "slow_down",
+        "road_type": "road_segment",
+        "turn_type": "right"
+      }
+    },
+    {
+      "advisory": {
+        "reason": "moderate curve",
+        "speed_advisory_kph": 67.6
+      },
+      "density": {
+        "classification": "medium",
+        "waypoint_density_per_km": 7.9484
+      },
+      "geometry": {
+        "curvature_deg": 33.46,
+        "type": "moderate"
+      },
+      "length_m": 503.25,
+      "road_info": {
+        "lanes": 2,
+        "speed_limit_kph": 96.6,
+        "type": "secondary"
+      },
+      "segment_id": 16,
+      "state": {
+        "recommended_action": "slow_down",
+        "road_type": "road_segment",
+        "turn_type": "left"
+      }
+    },
+    {
+      "advisory": {
+        "reason": "straight road",
+        "speed_advisory_kph": 96.6
+      },
+      "density": {
+        "classification": "medium",
+        "waypoint_density_per_km": 8.2481
+      },
+      "geometry": {
+        "curvature_deg": 7.15,
+        "type": "straight"
+      },
+      "length_m": 2303.56,
+      "road_info": {
+        "lanes": 2,
+        "speed_limit_kph": 96.6,
+        "type": "secondary"
+      },
+      "segment_id": 17,
+      "state": {
+        "recommended_action": "maintain_speed",
+        "road_type": "road_segment",
+        "turn_type": "straight"
+      }
+    },
+    {
+      "advisory": {
+        "reason": "moderate curve",
+        "speed_advisory_kph": 67.6
+      },
+      "density": {
+        "classification": "high",
+        "waypoint_density_per_km": 18.6888
+      },
+      "geometry": {
+        "curvature_deg": 20.71,
+        "type": "moderate"
+      },
+      "length_m": 695.6,
+      "road_info": {
+        "lanes": 2,
+        "speed_limit_kph": 96.6,
+        "type": "secondary"
+      },
+      "segment_id": 18,
+      "state": {
+        "recommended_action": "slow_down",
+        "road_type": "road_segment",
+        "turn_type": "right"
+      }
+    },
+    {
+      "advisory": {
+        "reason": "moderate curve",
+        "speed_advisory_kph": 67.6
+      },
+      "density": {
+        "classification": "medium",
+        "waypoint_density_per_km": 9.4696
+      },
+      "geometry": {
+        "curvature_deg": 33.5,
+        "type": "moderate"
+      },
+      "length_m": 422.41,
+      "road_info": {
+        "lanes": 2,
+        "speed_limit_kph": 96.6,
+        "type": "secondary"
+      },
+      "segment_id": 19,
+      "state": {
+        "recommended_action": "slow_down",
+        "road_type": "road_segment",
+        "turn_type": "left"
+      }
+    },
+    {
+      "advisory": {
+        "reason": "moderate curve",
+        "speed_advisory_kph": 67.6
+      },
+      "density": {
+        "classification": "medium",
+        "waypoint_density_per_km": 11.1382
+      },
+      "geometry": {
+        "curvature_deg": 13.9,
+        "type": "moderate"
+      },
+      "length_m": 1346.71,
+      "road_info": {
+        "lanes": 2,
+        "speed_limit_kph": 96.6,
+        "type": "secondary"
+      },
+      "segment_id": 20,
+      "state": {
+        "recommended_action": "slow_down",
+        "road_type": "road_segment",
+        "turn_type": "right"
+      }
+    },
+    {
+      "advisory": {
+        "reason": "moderate curve",
+        "speed_advisory_kph": 67.6
+      },
+      "density": {
+        "classification": "medium",
+        "waypoint_density_per_km": 14.2536
+      },
+      "geometry": {
+        "curvature_deg": 11.05,
+        "type": "moderate"
+      },
+      "length_m": 631.42,
+      "road_info": {
+        "lanes": 2,
+        "speed_limit_kph": 96.6,
+        "type": "secondary"
+      },
+      "segment_id": 21,
+      "state": {
+        "recommended_action": "slow_down",
+        "road_type": "road_segment",
+        "turn_type": "left"
+      }
+    },
+    {
+      "advisory": {
+        "reason": "straight road",
+        "speed_advisory_kph": 96.6
+      },
+      "density": {
+        "classification": "medium",
+        "waypoint_density_per_km": 11.8789
+      },
+      "geometry": {
+        "curvature_deg": 2.25,
+        "type": "straight"
+      },
+      "length_m": 1346.93,
+      "road_info": {
+        "lanes": 2,
+        "speed_limit_kph": 96.6,
+        "type": "secondary"
+      },
+      "segment_id": 22,
+      "state": {
+        "recommended_action": "maintain_speed",
+        "road_type": "road_segment",
+        "turn_type": "straight"
+      }
+    },
+    {
+      "advisory": {
+        "reason": "moderate curve",
+        "speed_advisory_kph": 67.6
+      },
+      "density": {
+        "classification": "high",
+        "waypoint_density_per_km": 28.394
+      },
+      "geometry": {
+        "curvature_deg": 38.11,
+        "type": "moderate"
+      },
+      "length_m": 211.31,
+      "road_info": {
+        "lanes": 2,
+        "speed_limit_kph": 96.6,
+        "type": "secondary"
+      },
+      "segment_id": 23,
+      "state": {
+        "recommended_action": "slow_down",
+        "road_type": "road_segment",
+        "turn_type": "right"
+      }
+    }
+  ],
+  "upcoming_events": [
+    {
+      "action": "proceed",
+      "distance_ahead_m": 0.0,
+      "severity": "low",
+      "type": "intersection"
+    },
+    {
+      "action": "proceed",
+      "distance_ahead_m": 2525.57,
+      "severity": "low",
+      "type": "intersection"
+    },
+    {
+      "distance_ahead_m": 2726.02,
+      "recommended_speed_kph": 28.0,
+      "severity": "moderate",
+      "type": "turn"
+    },
+    {
+      "action": "proceed",
+      "distance_ahead_m": 2726.02,
+      "severity": "low",
+      "type": "intersection"
+    },
+    {
+      "action": "proceed",
+      "distance_ahead_m": 2838.49,
+      "severity": "low",
+      "type": "intersection"
+    },
+    {
+      "distance_ahead_m": 4149.89,
+      "recommended_speed_kph": 28.0,
+      "severity": "moderate",
+      "type": "turn"
+    },
+    {
+      "action": "proceed",
+      "distance_ahead_m": 4149.89,
+      "severity": "low",
+      "type": "intersection"
+    },
+    {
+      "distance_ahead_m": 7888.36,
+      "recommended_speed_kph": 28.0,
+      "severity": "moderate",
+      "type": "turn"
+    },
+    {
+      "action": "proceed",
+      "distance_ahead_m": 7888.36,
+      "severity": "low",
+      "type": "intersection"
+    },
+    {
+      "action": "proceed",
+      "distance_ahead_m": 8366.33,
+      "severity": "low",
+      "type": "intersection"
+    },
+    {
+      "action": "proceed",
+      "distance_ahead_m": 8676.38,
+      "severity": "low",
+      "type": "intersection"
+    },
+    {
+      "action": "proceed",
+      "distance_ahead_m": 8945.89,
+      "severity": "low",
+      "type": "intersection"
+    },
+    {
+      "action": "proceed",
+      "distance_ahead_m": 9550.92,
+      "severity": "low",
+      "type": "intersection"
+    },
+    {
+      "action": "proceed",
+      "distance_ahead_m": 10686.45,
+      "severity": "low",
+      "type": "intersection"
+    },
+    {
+      "action": "proceed",
+      "distance_ahead_m": 11758.03,
+      "severity": "low",
+      "type": "intersection"
+    },
+    {
+      "distance_ahead_m": 13726.86,
+      "recommended_speed_kph": 48.3,
+      "severity": "high",
+      "type": "turn"
+    },
+    {
+      "action": "yield",
+      "distance_ahead_m": 13726.86,
+      "severity": "medium",
+      "type": "intersection"
+    },
+    {
+      "action": "proceed",
+      "distance_ahead_m": 15251.81,
+      "severity": "low",
+      "type": "intersection"
+    },
+    {
+      "distance_ahead_m": 16506.41,
+      "recommended_speed_kph": 67.6,
+      "severity": "moderate",
+      "type": "turn"
+    },
+    {
+      "action": "proceed",
+      "distance_ahead_m": 16506.41,
+      "severity": "low",
+      "type": "intersection"
+    },
+    {
+      "distance_ahead_m": 17068.5,
+      "recommended_speed_kph": 67.6,
+      "severity": "moderate",
+      "type": "turn"
+    },
+    {
+      "action": "proceed",
+      "distance_ahead_m": 17068.5,
+      "severity": "low",
+      "type": "intersection"
+    },
+    {
+      "action": "proceed",
+      "distance_ahead_m": 17571.75,
+      "severity": "low",
+      "type": "intersection"
+    },
+    {
+      "distance_ahead_m": 19875.3,
+      "recommended_speed_kph": 67.6,
+      "severity": "moderate",
+      "type": "turn"
+    },
+    {
+      "action": "proceed",
+      "distance_ahead_m": 19875.3,
+      "severity": "low",
+      "type": "intersection"
+    },
+    {
+      "distance_ahead_m": 20570.9,
+      "recommended_speed_kph": 67.6,
+      "severity": "moderate",
+      "type": "turn"
+    },
+    {
+      "action": "proceed",
+      "distance_ahead_m": 20570.9,
+      "severity": "low",
+      "type": "intersection"
+    },
+    {
+      "distance_ahead_m": 20993.31,
+      "recommended_speed_kph": 67.6,
+      "severity": "moderate",
+      "type": "turn"
+    },
+    {
+      "action": "proceed",
+      "distance_ahead_m": 20993.31,
+      "severity": "low",
+      "type": "intersection"
+    },
+    {
+      "distance_ahead_m": 22340.02,
+      "recommended_speed_kph": 67.6,
+      "severity": "moderate",
+      "type": "turn"
+    },
+    {
+      "action": "proceed",
+      "distance_ahead_m": 22340.02,
+      "severity": "low",
+      "type": "intersection"
+    },
+    {
+      "action": "proceed",
+      "distance_ahead_m": 22971.44,
+      "severity": "low",
+      "type": "intersection"
+    },
+    {
+      "distance_ahead_m": 24318.37,
+      "recommended_speed_kph": 67.6,
+      "severity": "moderate",
+      "type": "turn"
+    },
+    {
+      "action": "proceed",
+      "distance_ahead_m": 24318.37,
+      "severity": "low",
+      "type": "intersection"
+    },
+    {
+      "action": "yield",
+      "distance_ahead_m": 24529.68,
+      "severity": "medium",
+      "type": "intersection"
+    }
+  ]
+}

@@ -1,0 +1,1673 @@
+{
+  "corridor_summary": {
+    "context_counts": {
+      "buildings": 0,
+      "hospitals": 0,
+      "parking": 0,
+      "schools": 0,
+      "transit_stops": 0
+    },
+    "landuse_summary": {
+      "cemetery": {
+        "area_sqm": 1773.9384610475702,
+        "fraction_of_landuse_area": 1.0
+      }
+    },
+    "route_proximity": {
+      "fraction_route_within_100m_of_hospitals": 0.0,
+      "fraction_route_within_100m_of_schools": 0.0
+    },
+    "traffic_control_counts": {
+      "barriers": 3,
+      "crossings": 1,
+      "roundabouts": 0,
+      "stop_controlled": 0,
+      "traffic_calming": 0,
+      "traffic_signals": 0
+    }
+  },
+  "curvature_analysis": [
+    {
+      "bearing_deg": 278.7058913653631,
+      "curvature_class": "straight",
+      "curvature_deg": 0.0,
+      "segment_id": 1
+    },
+    {
+      "bearing_deg": 276.51618255138504,
+      "curvature_class": "straight",
+      "curvature_deg": 2.1897088139780294,
+      "segment_id": 2
+    },
+    {
+      "bearing_deg": 293.0512751284524,
+      "curvature_class": "moderate",
+      "curvature_deg": 16.53509257706736,
+      "segment_id": 3
+    },
+    {
+      "bearing_deg": 284.69855304770107,
+      "curvature_class": "straight",
+      "curvature_deg": 8.352722080751334,
+      "segment_id": 4
+    },
+    {
+      "bearing_deg": 261.5329631879077,
+      "curvature_class": "moderate",
+      "curvature_deg": 23.165589859793386,
+      "segment_id": 5
+    },
+    {
+      "bearing_deg": 240.13447835947142,
+      "curvature_class": "moderate",
+      "curvature_deg": 21.398484828436267,
+      "segment_id": 6
+    },
+    {
+      "bearing_deg": 239.16197942893535,
+      "curvature_class": "straight",
+      "curvature_deg": 0.9724989305360623,
+      "segment_id": 7
+    },
+    {
+      "bearing_deg": 241.75880647226217,
+      "curvature_class": "straight",
+      "curvature_deg": 2.5968270433268117,
+      "segment_id": 8
+    },
+    {
+      "bearing_deg": 237.96012596398265,
+      "curvature_class": "straight",
+      "curvature_deg": 3.798680508279517,
+      "segment_id": 9
+    },
+    {
+      "bearing_deg": 238.41460813900272,
+      "curvature_class": "straight",
+      "curvature_deg": 0.4544821750200754,
+      "segment_id": 10
+    },
+    {
+      "bearing_deg": 239.15012397929848,
+      "curvature_class": "straight",
+      "curvature_deg": 0.7355158402957613,
+      "segment_id": 11
+    },
+    {
+      "bearing_deg": 240.3468482675314,
+      "curvature_class": "straight",
+      "curvature_deg": 1.1967242882329288,
+      "segment_id": 12
+    },
+    {
+      "bearing_deg": 108.73538417617203,
+      "curvature_class": "sharp",
+      "curvature_deg": 131.61146409135938,
+      "segment_id": 13
+    },
+    {
+      "bearing_deg": 103.3906193593889,
+      "curvature_class": "straight",
+      "curvature_deg": 5.34476481678314,
+      "segment_id": 14
+    },
+    {
+      "bearing_deg": 135.75043034063953,
+      "curvature_class": "moderate",
+      "curvature_deg": 32.35981098125063,
+      "segment_id": 15
+    },
+    {
+      "bearing_deg": 102.28785286928508,
+      "curvature_class": "moderate",
+      "curvature_deg": 33.46257747135445,
+      "segment_id": 16
+    },
+    {
+      "bearing_deg": 109.43292823511717,
+      "curvature_class": "straight",
+      "curvature_deg": 7.145075365832099,
+      "segment_id": 17
+    },
+    {
+      "bearing_deg": 130.14227936276217,
+      "curvature_class": "moderate",
+      "curvature_deg": 20.709351127644993,
+      "segment_id": 18
+    },
+    {
+      "bearing_deg": 96.64180861877014,
+      "curvature_class": "moderate",
+      "curvature_deg": 33.500470743992025,
+      "segment_id": 19
+    },
+    {
+      "bearing_deg": 110.5373965829329,
+      "curvature_class": "moderate",
+      "curvature_deg": 13.895587964162758,
+      "segment_id": 20
+    },
+    {
+      "bearing_deg": 99.48394531617339,
+      "curvature_class": "moderate",
+      "curvature_deg": 11.05345126675951,
+      "segment_id": 21
+    },
+    {
+      "bearing_deg": 101.73335086031022,
+      "curvature_class": "straight",
+      "curvature_deg": 2.2494055441368346,
+      "segment_id": 22
+    },
+    {
+      "bearing_deg": 139.8424442123807,
+      "curvature_class": "moderate",
+      "curvature_deg": 38.10909335207049,
+      "segment_id": 23
+    }
+  ],
+  "edge_attribute_summary": {
+    "bike_infrastructure_by_length": {
+      "has_cycleway_tag": 0.0,
+      "no_cycleway_tag": 1.0
+    },
+    "lane_count_distribution": {
+      "1": 12,
+      "2": 11
+    },
+    "modal_speed_limit_kph": 40.0,
+    "oneway_proportion_by_length": {
+      "oneway": 0.0,
+      "twoway": 0.9987479944816517,
+      "unknown": 0.0012520055183482194
+    },
+    "percent_length_by_highway_type": {
+      "residential": 0.558901189414312,
+      "secondary": 0.4398468050673399
+    },
+    "roundabout_edge_count": 0,
+    "sidewalk_availability_by_length": {
+      "explicit_no": 0.0,
+      "present": 0.0,
+      "unknown": 1.0
+    },
+    "weighted_avg_speed_limit_kph": 64.90909756093414
+  },
+  "edge_attributes": [
+    {
+      "bearing_deg": 278.7058913653631,
+      "curvature_class": "straight",
+      "curvature_deg": 0.0,
+      "direction": "twoway",
+      "driving_state": {
+        "control": "none",
+        "geometry": "straight",
+        "topology": "road_segment"
+      },
+      "from_node": 5859770783,
+      "geometry_point_count": 23,
+      "lane_confidence": 0.6,
+      "lane_inference_source": "lanes_inferred_speed_low",
+      "lanes_count": 1,
+      "major_interpreted_notes": "lanes_inferred; maxspeed_inferred; sidewalk_unknown",
+      "maxspeed_kph": 40.0,
+      "oneway_bool": false,
+      "primary_highway": "residential",
+      "segment_id": 1,
+      "segment_length_m": 2525.56842418274,
+      "speed_confidence": 0.6,
+      "speed_inference_source": "speed_inferred_highway",
+      "to_node": 222733788,
+      "travel_time_s": 100.49520838087734,
+      "waypoint_density_per_100m": 0.910686,
+      "waypoint_density_per_km": 9.106861
+    },
+    {
+      "bearing_deg": 276.51618255138504,
+      "curvature_class": "straight",
+      "curvature_deg": 2.1897088139780294,
+      "direction": "twoway",
+      "driving_state": {
+        "control": "none",
+        "geometry": "straight",
+        "topology": "road_segment"
+      },
+      "from_node": 222733788,
+      "geometry_point_count": 4,
+      "lane_confidence": 0.6,
+      "lane_inference_source": "lanes_inferred_speed_low",
+      "lanes_count": 1,
+      "major_interpreted_notes": "lanes_inferred; maxspeed_inferred; sidewalk_unknown",
+      "maxspeed_kph": 40.0,
+      "oneway_bool": false,
+      "primary_highway": "residential",
+      "segment_id": 2,
+      "segment_length_m": 200.4469960878388,
+      "speed_confidence": 0.6,
+      "speed_inference_source": "speed_inferred_highway",
+      "to_node": 222737076,
+      "travel_time_s": 7.9760114389641785,
+      "waypoint_density_per_100m": 1.99554,
+      "waypoint_density_per_km": 19.9554
+    },
+    {
+      "bearing_deg": 293.0512751284524,
+      "curvature_class": "moderate",
+      "curvature_deg": 16.53509257706736,
+      "direction": "twoway",
+      "driving_state": {
+        "control": "none",
+        "geometry": "right_turn",
+        "topology": "road_segment"
+      },
+      "from_node": 222737076,
+      "geometry_point_count": 4,
+      "lane_confidence": 0.6,
+      "lane_inference_source": "lanes_inferred_speed_low",
+      "lanes_count": 1,
+      "major_interpreted_notes": "lanes_inferred; maxspeed_inferred; sidewalk_unknown",
+      "maxspeed_kph": 40.0,
+      "oneway_bool": false,
+      "primary_highway": "residential",
+      "segment_id": 3,
+      "segment_length_m": 112.47045385145735,
+      "speed_confidence": 0.6,
+      "speed_inference_source": "speed_inferred_highway",
+      "to_node": 222707957,
+      "travel_time_s": 4.475325866552818,
+      "waypoint_density_per_100m": 3.55649,
+      "waypoint_density_per_km": 35.564896
+    },
+    {
+      "bearing_deg": 284.69855304770107,
+      "curvature_class": "straight",
+      "curvature_deg": 8.352722080751334,
+      "direction": "twoway",
+      "driving_state": {
+        "control": "none",
+        "geometry": "straight",
+        "topology": "road_segment"
+      },
+      "from_node": 222707957,
+      "geometry_point_count": 8,
+      "lane_confidence": 0.6,
+      "lane_inference_source": "lanes_inferred_speed_low",
+      "lanes_count": 1,
+      "major_interpreted_notes": "lanes_inferred; maxspeed_inferred; sidewalk_unknown",
+      "maxspeed_kph": 40.0,
+      "oneway_bool": false,
+      "primary_highway": "residential",
+      "segment_id": 4,
+      "segment_length_m": 1311.4037998044291,
+      "speed_confidence": 0.6,
+      "speed_inference_source": "speed_inferred_highway",
+      "to_node": 222793358,
+      "travel_time_s": 52.18223227330178,
+      "waypoint_density_per_100m": 0.610033,
+      "waypoint_density_per_km": 6.100333
+    },
+    {
+      "bearing_deg": 261.5329631879077,
+      "curvature_class": "moderate",
+      "curvature_deg": 23.165589859793386,
+      "direction": "twoway",
+      "driving_state": {
+        "control": "none",
+        "geometry": "left_turn",
+        "topology": "road_segment"
+      },
+      "from_node": 222793358,
+      "geometry_point_count": 17,
+      "lane_confidence": 0.6,
+      "lane_inference_source": "lanes_inferred_speed_low",
+      "lanes_count": 1,
+      "major_interpreted_notes": "lanes_inferred; maxspeed_inferred; sidewalk_unknown",
+      "maxspeed_kph": 40.0,
+      "oneway_bool": false,
+      "primary_highway": "residential",
+      "segment_id": 5,
+      "segment_length_m": 3738.474547380819,
+      "speed_confidence": 0.6,
+      "speed_inference_source": "speed_inferred_highway",
+      "to_node": 222744698,
+      "travel_time_s": 148.75810731091778,
+      "waypoint_density_per_100m": 0.454731,
+      "waypoint_density_per_km": 4.547309
+    },
+    {
+      "bearing_deg": 240.13447835947142,
+      "curvature_class": "moderate",
+      "curvature_deg": 21.398484828436267,
+      "direction": "twoway",
+      "driving_state": {
+        "control": "none",
+        "geometry": "left_turn",
+        "topology": "road_segment"
+      },
+      "from_node": 222744698,
+      "geometry_point_count": 3,
+      "lane_confidence": 0.6,
+      "lane_inference_source": "lanes_inferred_speed_low",
+      "lanes_count": 1,
+      "major_interpreted_notes": "lanes_inferred; maxspeed_inferred; sidewalk_unknown",
+      "maxspeed_kph": 40.0,
+      "oneway_bool": false,
+      "primary_highway": "residential",
+      "segment_id": 6,
+      "segment_length_m": 477.96201449023863,
+      "speed_confidence": 0.6,
+      "speed_inference_source": "speed_inferred_highway",
+      "to_node": 222793310,
+      "travel_time_s": 19.01864617264671,
+      "waypoint_density_per_100m": 0.627665,
+      "waypoint_density_per_km": 6.276649
+    },
+    {
+      "bearing_deg": 239.16197942893535,
+      "curvature_class": "straight",
+      "curvature_deg": 0.9724989305360623,
+      "direction": "twoway",
+      "driving_state": {
+        "control": "none",
+        "geometry": "straight",
+        "topology": "road_segment"
+      },
+      "from_node": 222793310,
+      "geometry_point_count": 3,
+      "lane_confidence": 0.6,
+      "lane_inference_source": "lanes_inferred_speed_low",
+      "lanes_count": 1,
+      "major_interpreted_notes": "lanes_inferred; maxspeed_inferred; sidewalk_unknown",
+      "maxspeed_kph": 40.0,
+      "oneway_bool": false,
+      "primary_highway": "residential",
+      "segment_id": 7,
+      "segment_length_m": 310.0553479140683,
+      "speed_confidence": 0.6,
+      "speed_inference_source": "speed_inferred_highway",
+      "to_node": 222740454,
+      "travel_time_s": 12.337451046614438,
+      "waypoint_density_per_100m": 0.967569,
+      "waypoint_density_per_km": 9.675692
+    },
+    {
+      "bearing_deg": 241.75880647226217,
+      "curvature_class": "straight",
+      "curvature_deg": 2.5968270433268117,
+      "direction": "twoway",
+      "driving_state": {
+        "control": "none",
+        "geometry": "straight",
+        "topology": "road_segment"
+      },
+      "from_node": 222740454,
+      "geometry_point_count": 3,
+      "lane_confidence": 0.6,
+      "lane_inference_source": "lanes_inferred_speed_low",
+      "lanes_count": 1,
+      "major_interpreted_notes": "lanes_inferred; maxspeed_inferred; sidewalk_unknown",
+      "maxspeed_kph": 40.0,
+      "oneway_bool": false,
+      "primary_highway": "residential",
+      "segment_id": 8,
+      "segment_length_m": 269.5118804129317,
+      "speed_confidence": 0.6,
+      "speed_inference_source": "speed_inferred_highway",
+      "to_node": 222740433,
+      "travel_time_s": 10.724180871078207,
+      "waypoint_density_per_100m": 1.113123,
+      "waypoint_density_per_km": 11.131235
+    },
+    {
+      "bearing_deg": 237.96012596398265,
+      "curvature_class": "straight",
+      "curvature_deg": 3.798680508279517,
+      "direction": "twoway",
+      "driving_state": {
+        "control": "none",
+        "geometry": "straight",
+        "topology": "road_segment"
+      },
+      "from_node": 222740433,
+      "geometry_point_count": 2,
+      "lane_confidence": 0.6,
+      "lane_inference_source": "lanes_inferred_speed_low",
+      "lanes_count": 1,
+      "major_interpreted_notes": "lanes_inferred; maxspeed_inferred; sidewalk_unknown",
+      "maxspeed_kph": 40.0,
+      "oneway_bool": false,
+      "primary_highway": "residential",
+      "segment_id": 9,
+      "segment_length_m": 605.0311518500829,
+      "speed_confidence": 0.6,
+      "speed_inference_source": "speed_inferred_highway",
+      "to_node": 222791438,
+      "travel_time_s": 24.074870076732036,
+      "waypoint_density_per_100m": 0.330561,
+      "waypoint_density_per_km": 3.305615
+    },
+    {
+      "bearing_deg": 238.41460813900272,
+      "curvature_class": "straight",
+      "curvature_deg": 0.4544821750200754,
+      "direction": "twoway",
+      "driving_state": {
+        "control": "none",
+        "geometry": "straight",
+        "topology": "road_segment"
+      },
+      "from_node": 222791438,
+      "geometry_point_count": 2,
+      "lane_confidence": 0.6,
+      "lane_inference_source": "lanes_inferred_speed_low",
+      "lanes_count": 1,
+      "major_interpreted_notes": "lanes_inferred; maxspeed_inferred; sidewalk_unknown",
+      "maxspeed_kph": 40.0,
+      "oneway_bool": false,
+      "primary_highway": "residential",
+      "segment_id": 10,
+      "segment_length_m": 1135.5208048448085,
+      "speed_confidence": 0.6,
+      "speed_inference_source": "speed_inferred_highway",
+      "to_node": 222793250,
+      "travel_time_s": 45.18365006904431,
+      "waypoint_density_per_100m": 0.176131,
+      "waypoint_density_per_km": 1.761306
+    },
+    {
+      "bearing_deg": 239.15012397929848,
+      "curvature_class": "straight",
+      "curvature_deg": 0.7355158402957613,
+      "direction": "twoway",
+      "driving_state": {
+        "control": "none",
+        "geometry": "straight",
+        "topology": "road_segment"
+      },
+      "from_node": 222793250,
+      "geometry_point_count": 3,
+      "lane_confidence": 0.6,
+      "lane_inference_source": "lanes_inferred_speed_low",
+      "lanes_count": 1,
+      "major_interpreted_notes": "lanes_inferred; maxspeed_inferred; sidewalk_unknown",
+      "maxspeed_kph": 40.0,
+      "oneway_bool": false,
+      "primary_highway": "residential",
+      "segment_id": 11,
+      "segment_length_m": 1071.580506445156,
+      "speed_confidence": 0.6,
+      "speed_inference_source": "speed_inferred_highway",
+      "to_node": 222735457,
+      "travel_time_s": 42.63939367508505,
+      "waypoint_density_per_100m": 0.27996,
+      "waypoint_density_per_km": 2.799603
+    },
+    {
+      "bearing_deg": 240.3468482675314,
+      "curvature_class": "straight",
+      "curvature_deg": 1.1967242882329288,
+      "direction": "twoway",
+      "driving_state": {
+        "control": "none",
+        "geometry": "straight",
+        "topology": "road_segment"
+      },
+      "from_node": 222735457,
+      "geometry_point_count": 8,
+      "lane_confidence": 0.6,
+      "lane_inference_source": "lanes_inferred_speed_low",
+      "lanes_count": 1,
+      "major_interpreted_notes": "lanes_inferred; maxspeed_inferred; sidewalk_unknown",
+      "maxspeed_kph": 40.0,
+      "oneway_bool": false,
+      "primary_highway": "residential",
+      "segment_id": 12,
+      "segment_length_m": 1968.8296095528249,
+      "speed_confidence": 0.6,
+      "speed_inference_source": "speed_inferred_highway",
+      "to_node": 222748485,
+      "travel_time_s": 78.3419447218019,
+      "waypoint_density_per_100m": 0.406333,
+      "waypoint_density_per_km": 4.063328
+    },
+    {
+      "bearing_deg": 108.73538417617203,
+      "curvature_class": "sharp",
+      "curvature_deg": 131.61146409135938,
+      "direction": "twoway",
+      "driving_state": {
+        "control": "none",
+        "geometry": "left_turn",
+        "topology": "road_segment"
+      },
+      "from_node": 222748485,
+      "geometry_point_count": 13,
+      "lane_confidence": 1.0,
+      "lane_inference_source": "lanes_osm",
+      "lanes_count": 2,
+      "major_interpreted_notes": "sidewalk_unknown",
+      "maxspeed_kph": 96.5604,
+      "oneway_bool": false,
+      "primary_highway": "secondary",
+      "segment_id": 13,
+      "segment_length_m": 1524.9513354820208,
+      "speed_confidence": 1.0,
+      "speed_inference_source": "speed_osm",
+      "to_node": 2374340945,
+      "travel_time_s": 56.85379107517445,
+      "waypoint_density_per_100m": 0.852486,
+      "waypoint_density_per_km": 8.524862
+    },
+    {
+      "bearing_deg": 103.3906193593889,
+      "curvature_class": "straight",
+      "curvature_deg": 5.34476481678314,
+      "direction": "twoway",
+      "driving_state": {
+        "control": "none",
+        "geometry": "straight",
+        "topology": "road_segment"
+      },
+      "from_node": 2374340945,
+      "geometry_point_count": 18,
+      "lane_confidence": 1.0,
+      "lane_inference_source": "lanes_osm",
+      "lanes_count": 2,
+      "major_interpreted_notes": "sidewalk_unknown",
+      "maxspeed_kph": 96.5604,
+      "oneway_bool": false,
+      "primary_highway": "secondary",
+      "segment_id": 14,
+      "segment_length_m": 1254.605460613028,
+      "speed_confidence": 1.0,
+      "speed_inference_source": "speed_osm",
+      "to_node": 2374340941,
+      "travel_time_s": 46.77465770861452,
+      "waypoint_density_per_100m": 1.434714,
+      "waypoint_density_per_km": 14.34714
+    },
+    {
+      "bearing_deg": 135.75043034063953,
+      "curvature_class": "moderate",
+      "curvature_deg": 32.35981098125063,
+      "direction": "twoway",
+      "driving_state": {
+        "control": "none",
+        "geometry": "right_turn",
+        "topology": "road_segment"
+      },
+      "from_node": 2374340941,
+      "geometry_point_count": 9,
+      "lane_confidence": 1.0,
+      "lane_inference_source": "lanes_osm",
+      "lanes_count": 2,
+      "major_interpreted_notes": "sidewalk_unknown",
+      "maxspeed_kph": 96.5604,
+      "oneway_bool": false,
+      "primary_highway": "secondary",
+      "segment_id": 15,
+      "segment_length_m": 562.0864125399335,
+      "speed_confidence": 1.0,
+      "speed_inference_source": "speed_osm",
+      "to_node": 222793990,
+      "travel_time_s": 20.95591034361664,
+      "waypoint_density_per_100m": 1.601177,
+      "waypoint_density_per_km": 16.011773
+    },
+    {
+      "bearing_deg": 102.28785286928508,
+      "curvature_class": "moderate",
+      "curvature_deg": 33.46257747135445,
+      "direction": "twoway",
+      "driving_state": {
+        "control": "none",
+        "geometry": "left_turn",
+        "topology": "road_segment"
+      },
+      "from_node": 222793990,
+      "geometry_point_count": 4,
+      "lane_confidence": 1.0,
+      "lane_inference_source": "lanes_osm",
+      "lanes_count": 2,
+      "major_interpreted_notes": "sidewalk_unknown",
+      "maxspeed_kph": 96.5604,
+      "oneway_bool": false,
+      "primary_highway": "secondary",
+      "segment_id": 16,
+      "segment_length_m": 503.24648761537117,
+      "speed_confidence": 1.0,
+      "speed_inference_source": "speed_osm",
+      "to_node": 222733813,
+      "travel_time_s": 18.762218833137975,
+      "waypoint_density_per_100m": 0.794839,
+      "waypoint_density_per_km": 7.948391
+    },
+    {
+      "bearing_deg": 109.43292823511717,
+      "curvature_class": "straight",
+      "curvature_deg": 7.145075365832099,
+      "direction": "twoway",
+      "driving_state": {
+        "control": "none",
+        "geometry": "straight",
+        "topology": "road_segment"
+      },
+      "from_node": 222733813,
+      "geometry_point_count": 19,
+      "lane_confidence": 1.0,
+      "lane_inference_source": "lanes_osm",
+      "lanes_count": 2,
+      "major_interpreted_notes": "sidewalk_unknown",
+      "maxspeed_kph": 96.5604,
+      "oneway_bool": false,
+      "primary_highway": "secondary",
+      "segment_id": 17,
+      "segment_length_m": 2303.556256242174,
+      "speed_confidence": 1.0,
+      "speed_inference_source": "speed_osm",
+      "to_node": 222747187,
+      "travel_time_s": 85.88202329807899,
+      "waypoint_density_per_100m": 0.824812,
+      "waypoint_density_per_km": 8.248116
+    },
+    {
+      "bearing_deg": 130.14227936276217,
+      "curvature_class": "moderate",
+      "curvature_deg": 20.709351127644993,
+      "direction": "twoway",
+      "driving_state": {
+        "control": "none",
+        "geometry": "right_turn",
+        "topology": "road_segment"
+      },
+      "from_node": 222747187,
+      "geometry_point_count": 13,
+      "lane_confidence": 1.0,
+      "lane_inference_source": "lanes_osm",
+      "lanes_count": 2,
+      "major_interpreted_notes": "sidewalk_unknown",
+      "maxspeed_kph": 96.5604,
+      "oneway_bool": false,
+      "primary_highway": "secondary",
+      "segment_id": 18,
+      "segment_length_m": 695.6022234464413,
+      "speed_confidence": 1.0,
+      "speed_inference_source": "speed_osm",
+      "to_node": 222777147,
+      "travel_time_s": 25.933695432156334,
+      "waypoint_density_per_100m": 1.868884,
+      "waypoint_density_per_km": 18.688842
+    },
+    {
+      "bearing_deg": 96.64180861877014,
+      "curvature_class": "moderate",
+      "curvature_deg": 33.500470743992025,
+      "direction": "twoway",
+      "driving_state": {
+        "control": "none",
+        "geometry": "left_turn",
+        "topology": "road_segment"
+      },
+      "from_node": 222777147,
+      "geometry_point_count": 4,
+      "lane_confidence": 1.0,
+      "lane_inference_source": "lanes_osm",
+      "lanes_count": 2,
+      "major_interpreted_notes": "sidewalk_unknown",
+      "maxspeed_kph": 96.5604,
+      "oneway_bool": false,
+      "primary_highway": "secondary",
+      "segment_id": 19,
+      "segment_length_m": 422.40579965379175,
+      "speed_confidence": 1.0,
+      "speed_inference_source": "speed_osm",
+      "to_node": 222777142,
+      "travel_time_s": 15.748286862457595,
+      "waypoint_density_per_100m": 0.946957,
+      "waypoint_density_per_km": 9.469567
+    },
+    {
+      "bearing_deg": 110.5373965829329,
+      "curvature_class": "moderate",
+      "curvature_deg": 13.895587964162758,
+      "direction": "twoway",
+      "driving_state": {
+        "control": "none",
+        "geometry": "right_turn",
+        "topology": "road_segment"
+      },
+      "from_node": 222777142,
+      "geometry_point_count": 15,
+      "lane_confidence": 1.0,
+      "lane_inference_source": "lanes_osm",
+      "lanes_count": 2,
+      "major_interpreted_notes": "sidewalk_unknown",
+      "maxspeed_kph": 96.5604,
+      "oneway_bool": false,
+      "primary_highway": "secondary",
+      "segment_id": 20,
+      "segment_length_m": 1346.71487677965,
+      "speed_confidence": 1.0,
+      "speed_inference_source": "speed_osm",
+      "to_node": 2374340889,
+      "travel_time_s": 50.208714508294705,
+      "waypoint_density_per_100m": 1.113822,
+      "waypoint_density_per_km": 11.138215
+    },
+    {
+      "bearing_deg": 99.48394531617339,
+      "curvature_class": "moderate",
+      "curvature_deg": 11.05345126675951,
+      "direction": "twoway",
+      "driving_state": {
+        "control": "none",
+        "geometry": "left_turn",
+        "topology": "road_segment"
+      },
+      "from_node": 2374340889,
+      "geometry_point_count": 9,
+      "lane_confidence": 1.0,
+      "lane_inference_source": "lanes_osm",
+      "lanes_count": 2,
+      "major_interpreted_notes": "sidewalk_unknown",
+      "maxspeed_kph": 96.5604,
+      "oneway_bool": false,
+      "primary_highway": "secondary",
+      "segment_id": 21,
+      "segment_length_m": 631.418463997481,
+      "speed_confidence": 1.0,
+      "speed_inference_source": "speed_osm",
+      "to_node": 2374340882,
+      "travel_time_s": 23.540773136719935,
+      "waypoint_density_per_100m": 1.425362,
+      "waypoint_density_per_km": 14.253622
+    },
+    {
+      "bearing_deg": 101.73335086031022,
+      "curvature_class": "straight",
+      "curvature_deg": 2.2494055441368346,
+      "direction": "twoway",
+      "driving_state": {
+        "control": "none",
+        "geometry": "straight",
+        "topology": "road_segment"
+      },
+      "from_node": 2374340882,
+      "geometry_point_count": 16,
+      "lane_confidence": 1.0,
+      "lane_inference_source": "lanes_osm",
+      "lanes_count": 2,
+      "major_interpreted_notes": "sidewalk_unknown",
+      "maxspeed_kph": 96.5604,
+      "oneway_bool": false,
+      "primary_highway": "secondary",
+      "segment_id": 22,
+      "segment_length_m": 1346.9283753497584,
+      "speed_confidence": 1.0,
+      "speed_inference_source": "speed_osm",
+      "to_node": 222740153,
+      "travel_time_s": 50.21667423974145,
+      "waypoint_density_per_100m": 1.187888,
+      "waypoint_density_per_km": 11.87888
+    },
+    {
+      "bearing_deg": 139.8424442123807,
+      "curvature_class": "moderate",
+      "curvature_deg": 38.10909335207049,
+      "direction": "twoway",
+      "driving_state": {
+        "control": "none",
+        "geometry": "right_turn",
+        "topology": "road_segment"
+      },
+      "from_node": 222740153,
+      "geometry_point_count": 6,
+      "lane_confidence": 1.0,
+      "lane_inference_source": "lanes_osm",
+      "lanes_count": 2,
+      "major_interpreted_notes": "sidewalk_unknown",
+      "maxspeed_kph": 96.5604,
+      "oneway_bool": false,
+      "primary_highway": "secondary",
+      "segment_id": 23,
+      "segment_length_m": 211.3125466978468,
+      "speed_confidence": 1.0,
+      "speed_inference_source": "speed_osm",
+      "to_node": 222777063,
+      "travel_time_s": 7.87823132580487,
+      "waypoint_density_per_100m": 2.839396,
+      "waypoint_density_per_km": 28.39396
+    }
+  ],
+  "inputs": {
+    "corridor_width_m": 30.0,
+    "end": [
+      30.4958,
+      -96.74689
+    ],
+    "middle": [
+      [
+        30.554,
+        -96.79427
+      ],
+      [
+        30.5268,
+        -96.8477
+      ],
+      [
+        30.51229,
+        -96.79985
+      ]
+    ],
+    "start": [
+      30.551123,
+      -96.717877
+    ]
+  },
+  "intersection_details": [
+    {
+      "connected_edge_count": 3,
+      "connected_highway_types": [
+        "primary",
+        "residential"
+      ],
+      "connected_oneway_count": 0,
+      "connected_road_names": [
+        "County Road 316",
+        "State Highway 36 North"
+      ],
+      "connected_twoway_count": 3,
+      "distance_from_start_m": 0.0,
+      "has_crossing_nearby": false,
+      "input_point_type": "start",
+      "is_input_point": true,
+      "is_signalized": false,
+      "is_stop_controlled": false,
+      "latitude": 30.5511225,
+      "longitude": -96.7178627,
+      "node_degree": 3,
+      "node_id": 5859770783,
+      "route_position_index": 0
+    },
+    {
+      "connected_edge_count": 3,
+      "connected_highway_types": [
+        "residential"
+      ],
+      "connected_oneway_count": 0,
+      "connected_road_names": [
+        "County Road 316"
+      ],
+      "connected_twoway_count": 3,
+      "distance_from_start_m": 2525.57,
+      "has_crossing_nearby": false,
+      "input_point_type": "none",
+      "is_input_point": false,
+      "is_signalized": false,
+      "is_stop_controlled": false,
+      "latitude": 30.5544742,
+      "longitude": -96.7432992,
+      "node_degree": 3,
+      "node_id": 222733788,
+      "route_position_index": 1
+    },
+    {
+      "connected_edge_count": 3,
+      "connected_highway_types": [
+        "residential"
+      ],
+      "connected_oneway_count": 0,
+      "connected_road_names": [
+        "County Road 316"
+      ],
+      "connected_twoway_count": 3,
+      "distance_from_start_m": 2726.02,
+      "has_crossing_nearby": false,
+      "input_point_type": "none",
+      "is_input_point": false,
+      "is_signalized": false,
+      "is_stop_controlled": false,
+      "latitude": 30.5546773,
+      "longitude": -96.7453642,
+      "node_degree": 3,
+      "node_id": 222737076,
+      "route_position_index": 2
+    },
+    {
+      "connected_edge_count": 3,
+      "connected_highway_types": [
+        "residential"
+      ],
+      "connected_oneway_count": 0,
+      "connected_road_names": [
+        "County Road 316"
+      ],
+      "connected_twoway_count": 3,
+      "distance_from_start_m": 2838.49,
+      "has_crossing_nearby": false,
+      "input_point_type": "none",
+      "is_input_point": false,
+      "is_signalized": false,
+      "is_stop_controlled": false,
+      "latitude": 30.5550732,
+      "longitude": -96.7464446,
+      "node_degree": 3,
+      "node_id": 222707957,
+      "route_position_index": 3
+    },
+    {
+      "connected_edge_count": 3,
+      "connected_highway_types": [
+        "residential",
+        "unclassified"
+      ],
+      "connected_oneway_count": 0,
+      "connected_road_names": [
+        "County Road 315",
+        "County Road 316"
+      ],
+      "connected_twoway_count": 3,
+      "distance_from_start_m": 4149.89,
+      "has_crossing_nearby": false,
+      "input_point_type": "none",
+      "is_input_point": false,
+      "is_signalized": false,
+      "is_stop_controlled": false,
+      "latitude": 30.5580221,
+      "longitude": -96.7595023,
+      "node_degree": 3,
+      "node_id": 222793358,
+      "route_position_index": 4
+    },
+    {
+      "connected_edge_count": 3,
+      "connected_highway_types": [
+        "residential"
+      ],
+      "connected_oneway_count": 0,
+      "connected_road_names": [
+        "County Road 316"
+      ],
+      "connected_twoway_count": 3,
+      "distance_from_start_m": 7888.36,
+      "has_crossing_nearby": false,
+      "input_point_type": "waypoint_1",
+      "is_input_point": true,
+      "is_signalized": false,
+      "is_stop_controlled": false,
+      "latitude": 30.5534212,
+      "longitude": -96.7953541,
+      "node_degree": 3,
+      "node_id": 222744698,
+      "route_position_index": 5
+    },
+    {
+      "connected_edge_count": 3,
+      "connected_highway_types": [
+        "residential"
+      ],
+      "connected_oneway_count": 0,
+      "connected_road_names": [
+        "County Road 309",
+        "County Road 316"
+      ],
+      "connected_twoway_count": 3,
+      "distance_from_start_m": 8366.33,
+      "has_crossing_nearby": false,
+      "input_point_type": "none",
+      "is_input_point": false,
+      "is_signalized": false,
+      "is_stop_controlled": false,
+      "latitude": 30.5512807,
+      "longitude": -96.7996825,
+      "node_degree": 3,
+      "node_id": 222793310,
+      "route_position_index": 6
+    },
+    {
+      "connected_edge_count": 3,
+      "connected_highway_types": [
+        "residential"
+      ],
+      "connected_oneway_count": 0,
+      "connected_road_names": [
+        "County Road 316"
+      ],
+      "connected_twoway_count": 3,
+      "distance_from_start_m": 8676.38,
+      "has_crossing_nearby": false,
+      "input_point_type": "none",
+      "is_input_point": false,
+      "is_signalized": false,
+      "is_stop_controlled": false,
+      "latitude": 30.549866,
+      "longitude": -96.802434,
+      "node_degree": 3,
+      "node_id": 222740454,
+      "route_position_index": 7
+    },
+    {
+      "connected_edge_count": 3,
+      "connected_highway_types": [
+        "residential"
+      ],
+      "connected_oneway_count": 0,
+      "connected_road_names": [
+        "County Road 316"
+      ],
+      "connected_twoway_count": 3,
+      "distance_from_start_m": 8945.89,
+      "has_crossing_nearby": false,
+      "input_point_type": "none",
+      "is_input_point": false,
+      "is_signalized": false,
+      "is_stop_controlled": false,
+      "latitude": 30.548735,
+      "longitude": -96.804879,
+      "node_degree": 3,
+      "node_id": 222740433,
+      "route_position_index": 8
+    },
+    {
+      "connected_edge_count": 3,
+      "connected_highway_types": [
+        "residential",
+        "unclassified"
+      ],
+      "connected_oneway_count": 0,
+      "connected_road_names": [
+        "County Road 310",
+        "County Road 316"
+      ],
+      "connected_twoway_count": 3,
+      "distance_from_start_m": 9550.92,
+      "has_crossing_nearby": false,
+      "input_point_type": "none",
+      "is_input_point": false,
+      "is_signalized": false,
+      "is_stop_controlled": false,
+      "latitude": 30.5458483,
+      "longitude": -96.8102346,
+      "node_degree": 3,
+      "node_id": 222791438,
+      "route_position_index": 9
+    },
+    {
+      "connected_edge_count": 3,
+      "connected_highway_types": [
+        "residential"
+      ],
+      "connected_oneway_count": 0,
+      "connected_road_names": [
+        "County Road 316",
+        "County Road 317"
+      ],
+      "connected_twoway_count": 3,
+      "distance_from_start_m": 10686.45,
+      "has_crossing_nearby": false,
+      "input_point_type": "none",
+      "is_input_point": false,
+      "is_signalized": false,
+      "is_stop_controlled": false,
+      "latitude": 30.5404992,
+      "longitude": -96.820335,
+      "node_degree": 3,
+      "node_id": 222793250,
+      "route_position_index": 10
+    },
+    {
+      "connected_edge_count": 3,
+      "connected_highway_types": [
+        "residential"
+      ],
+      "connected_oneway_count": 0,
+      "connected_road_names": [
+        "County Road 316"
+      ],
+      "connected_twoway_count": 3,
+      "distance_from_start_m": 11758.03,
+      "has_crossing_nearby": false,
+      "input_point_type": "none",
+      "is_input_point": false,
+      "is_signalized": false,
+      "is_stop_controlled": false,
+      "latitude": 30.5355581,
+      "longitude": -96.8299387,
+      "node_degree": 3,
+      "node_id": 222735457,
+      "route_position_index": 11
+    },
+    {
+      "connected_edge_count": 5,
+      "connected_highway_types": [
+        "residential",
+        "secondary"
+      ],
+      "connected_oneway_count": 0,
+      "connected_road_names": [
+        "County Road 316",
+        "Farm to Market Road 908"
+      ],
+      "connected_twoway_count": 5,
+      "distance_from_start_m": 13726.86,
+      "has_crossing_nearby": false,
+      "input_point_type": "waypoint_2",
+      "is_input_point": true,
+      "is_signalized": false,
+      "is_stop_controlled": false,
+      "latitude": 30.526804,
+      "longitude": -96.8477873,
+      "node_degree": 5,
+      "node_id": 222748485,
+      "route_position_index": 12
+    },
+    {
+      "connected_edge_count": 3,
+      "connected_highway_types": [
+        "residential",
+        "secondary"
+      ],
+      "connected_oneway_count": 0,
+      "connected_road_names": [
+        "County Road 318",
+        "Farm to Market Road 908"
+      ],
+      "connected_twoway_count": 3,
+      "distance_from_start_m": 15251.81,
+      "has_crossing_nearby": false,
+      "input_point_type": "none",
+      "is_input_point": false,
+      "is_signalized": false,
+      "is_stop_controlled": false,
+      "latitude": 30.5224389,
+      "longitude": -96.83285,
+      "node_degree": 3,
+      "node_id": 2374340945,
+      "route_position_index": 13
+    },
+    {
+      "connected_edge_count": 3,
+      "connected_highway_types": [
+        "residential",
+        "secondary"
+      ],
+      "connected_oneway_count": 0,
+      "connected_road_names": [
+        "County Road 317",
+        "Farm to Market Road 908"
+      ],
+      "connected_twoway_count": 3,
+      "distance_from_start_m": 16506.41,
+      "has_crossing_nearby": false,
+      "input_point_type": "none",
+      "is_input_point": false,
+      "is_signalized": false,
+      "is_stop_controlled": false,
+      "latitude": 30.5203357,
+      "longitude": -96.8225963,
+      "node_degree": 3,
+      "node_id": 2374340941,
+      "route_position_index": 14
+    },
+    {
+      "connected_edge_count": 3,
+      "connected_highway_types": [
+        "secondary",
+        "unclassified"
+      ],
+      "connected_oneway_count": 0,
+      "connected_road_names": [
+        "County Road 319",
+        "Farm to Market Road 908"
+      ],
+      "connected_twoway_count": 3,
+      "distance_from_start_m": 17068.5,
+      "has_crossing_nearby": false,
+      "input_point_type": "none",
+      "is_input_point": false,
+      "is_signalized": false,
+      "is_stop_controlled": false,
+      "latitude": 30.5168254,
+      "longitude": -96.818627,
+      "node_degree": 3,
+      "node_id": 222793990,
+      "route_position_index": 15
+    },
+    {
+      "connected_edge_count": 3,
+      "connected_highway_types": [
+        "residential",
+        "secondary"
+      ],
+      "connected_oneway_count": 0,
+      "connected_road_names": [
+        "Farm to Market Road 908"
+      ],
+      "connected_twoway_count": 3,
+      "distance_from_start_m": 17571.75,
+      "has_crossing_nearby": false,
+      "input_point_type": "none",
+      "is_input_point": false,
+      "is_signalized": false,
+      "is_stop_controlled": false,
+      "latitude": 30.5158622,
+      "longitude": -96.8134944,
+      "node_degree": 3,
+      "node_id": 222733813,
+      "route_position_index": 16
+    },
+    {
+      "connected_edge_count": 3,
+      "connected_highway_types": [
+        "residential",
+        "secondary"
+      ],
+      "connected_oneway_count": 0,
+      "connected_road_names": [
+        "Farm to Market Road 908"
+      ],
+      "connected_twoway_count": 3,
+      "distance_from_start_m": 19875.3,
+      "has_crossing_nearby": false,
+      "input_point_type": "waypoint_3",
+      "is_input_point": true,
+      "is_signalized": false,
+      "is_stop_controlled": false,
+      "latitude": 30.5090215,
+      "longitude": -96.7909952,
+      "node_degree": 3,
+      "node_id": 222747187,
+      "route_position_index": 17
+    },
+    {
+      "connected_edge_count": 3,
+      "connected_highway_types": [
+        "residential",
+        "secondary"
+      ],
+      "connected_oneway_count": 0,
+      "connected_road_names": [
+        "County Road 112",
+        "Farm to Market Road 908"
+      ],
+      "connected_twoway_count": 3,
+      "distance_from_start_m": 20570.9,
+      "has_crossing_nearby": false,
+      "input_point_type": "none",
+      "is_input_point": false,
+      "is_signalized": false,
+      "is_stop_controlled": false,
+      "latitude": 30.505224,
+      "longitude": -96.785769,
+      "node_degree": 3,
+      "node_id": 222777147,
+      "route_position_index": 18
+    },
+    {
+      "connected_edge_count": 3,
+      "connected_highway_types": [
+        "residential",
+        "secondary"
+      ],
+      "connected_oneway_count": 0,
+      "connected_road_names": [
+        "County Road 316",
+        "Farm to Market Road 908"
+      ],
+      "connected_twoway_count": 3,
+      "distance_from_start_m": 20993.31,
+      "has_crossing_nearby": false,
+      "input_point_type": "none",
+      "is_input_point": false,
+      "is_signalized": false,
+      "is_stop_controlled": false,
+      "latitude": 30.504785,
+      "longitude": -96.781394,
+      "node_degree": 3,
+      "node_id": 222777142,
+      "route_position_index": 19
+    },
+    {
+      "connected_edge_count": 3,
+      "connected_highway_types": [
+        "residential",
+        "secondary"
+      ],
+      "connected_oneway_count": 0,
+      "connected_road_names": [
+        "Farm to Market Road 908",
+        "Pecan Drive"
+      ],
+      "connected_twoway_count": 3,
+      "distance_from_start_m": 22340.02,
+      "has_crossing_nearby": false,
+      "input_point_type": "none",
+      "is_input_point": false,
+      "is_signalized": false,
+      "is_stop_controlled": false,
+      "latitude": 30.5005952,
+      "longitude": -96.768416,
+      "node_degree": 3,
+      "node_id": 2374340889,
+      "route_position_index": 20
+    },
+    {
+      "connected_edge_count": 3,
+      "connected_highway_types": [
+        "residential",
+        "secondary"
+      ],
+      "connected_oneway_count": 0,
+      "connected_road_names": [
+        "Farm to Market Road 908",
+        "Yaupon Drive"
+      ],
+      "connected_twoway_count": 3,
+      "distance_from_start_m": 22971.44,
+      "has_crossing_nearby": false,
+      "input_point_type": "none",
+      "is_input_point": false,
+      "is_signalized": false,
+      "is_stop_controlled": false,
+      "latitude": 30.4996627,
+      "longitude": -96.7619387,
+      "node_degree": 3,
+      "node_id": 2374340882,
+      "route_position_index": 21
+    },
+    {
+      "connected_edge_count": 3,
+      "connected_highway_types": [
+        "residential",
+        "secondary"
+      ],
+      "connected_oneway_count": 0,
+      "connected_road_names": [
+        "Farm to Market Road 908"
+      ],
+      "connected_twoway_count": 3,
+      "distance_from_start_m": 24318.37,
+      "has_crossing_nearby": false,
+      "input_point_type": "none",
+      "is_input_point": false,
+      "is_signalized": false,
+      "is_stop_controlled": false,
+      "latitude": 30.4972356,
+      "longitude": -96.7483806,
+      "node_degree": 3,
+      "node_id": 222740153,
+      "route_position_index": 22
+    },
+    {
+      "connected_edge_count": 4,
+      "connected_highway_types": [
+        "secondary",
+        "trunk"
+      ],
+      "connected_oneway_count": 2,
+      "connected_road_names": [
+        "Farm to Market Road 908",
+        "State Highway 21 West"
+      ],
+      "connected_twoway_count": 2,
+      "distance_from_start_m": 24529.68,
+      "has_crossing_nearby": false,
+      "input_point_type": "end",
+      "is_input_point": true,
+      "is_signalized": false,
+      "is_stop_controlled": false,
+      "latitude": 30.4957894,
+      "longitude": -96.7469644,
+      "node_degree": 4,
+      "node_id": 222777063,
+      "route_position_index": 23
+    }
+  ],
+  "points_of_interest": {
+    "bike_lanes": [],
+    "crossings": [
+      {
+        "latitude": 30.5552239,
+        "longitude": -96.7469415,
+        "type": "crossing"
+      }
+    ],
+    "intersections": [
+      {
+        "latitude": 30.5511225,
+        "longitude": -96.7178627,
+        "type": "intersection"
+      },
+      {
+        "latitude": 30.5544742,
+        "longitude": -96.7432992,
+        "type": "intersection"
+      },
+      {
+        "latitude": 30.5546773,
+        "longitude": -96.7453642,
+        "type": "intersection"
+      },
+      {
+        "latitude": 30.5550732,
+        "longitude": -96.7464446,
+        "type": "intersection"
+      },
+      {
+        "latitude": 30.5580221,
+        "longitude": -96.7595023,
+        "type": "intersection"
+      },
+      {
+        "latitude": 30.5534212,
+        "longitude": -96.7953541,
+        "type": "intersection"
+      },
+      {
+        "latitude": 30.5512807,
+        "longitude": -96.7996825,
+        "type": "intersection"
+      },
+      {
+        "latitude": 30.549866,
+        "longitude": -96.802434,
+        "type": "intersection"
+      },
+      {
+        "latitude": 30.548735,
+        "longitude": -96.804879,
+        "type": "intersection"
+      },
+      {
+        "latitude": 30.5458483,
+        "longitude": -96.8102346,
+        "type": "intersection"
+      },
+      {
+        "latitude": 30.5404992,
+        "longitude": -96.820335,
+        "type": "intersection"
+      },
+      {
+        "latitude": 30.5355581,
+        "longitude": -96.8299387,
+        "type": "intersection"
+      },
+      {
+        "latitude": 30.526804,
+        "longitude": -96.8477873,
+        "type": "intersection"
+      },
+      {
+        "latitude": 30.5224389,
+        "longitude": -96.83285,
+        "type": "intersection"
+      },
+      {
+        "latitude": 30.5203357,
+        "longitude": -96.8225963,
+        "type": "intersection"
+      },
+      {
+        "latitude": 30.5168254,
+        "longitude": -96.818627,
+        "type": "intersection"
+      },
+      {
+        "latitude": 30.5158622,
+        "longitude": -96.8134944,
+        "type": "intersection"
+      },
+      {
+        "latitude": 30.5090215,
+        "longitude": -96.7909952,
+        "type": "intersection"
+      },
+      {
+        "latitude": 30.505224,
+        "longitude": -96.785769,
+        "type": "intersection"
+      },
+      {
+        "latitude": 30.504785,
+        "longitude": -96.781394,
+        "type": "intersection"
+      },
+      {
+        "latitude": 30.5005952,
+        "longitude": -96.768416,
+        "type": "intersection"
+      },
+      {
+        "latitude": 30.4996627,
+        "longitude": -96.7619387,
+        "type": "intersection"
+      },
+      {
+        "latitude": 30.4972356,
+        "longitude": -96.7483806,
+        "type": "intersection"
+      },
+      {
+        "latitude": 30.4957894,
+        "longitude": -96.7469644,
+        "type": "intersection"
+      }
+    ],
+    "stop_signs": [],
+    "traffic_signals": []
+  },
+  "route_geometry_topology": {
+    "curvature_proxy_sinuosity": 3.6360197440746576,
+    "intersection_count": 24,
+    "intersection_density_per_km": 0.9771814462508339,
+    "leg_summaries": [
+      {
+        "from_input_index": 0,
+        "leg_index": 0,
+        "length_km": 7.888364221307285,
+        "length_m": 7888.364221307284,
+        "to_input_index": 1,
+        "travel_time_min": 5.231448087843565,
+        "travel_time_s": 313.8868852706139
+      },
+      {
+        "from_input_index": 1,
+        "leg_index": 1,
+        "length_km": 5.838491315510111,
+        "length_m": 5838.491315510111,
+        "to_input_index": 2,
+        "travel_time_min": 3.8720022772167106,
+        "travel_time_s": 232.32013663300265
+      },
+      {
+        "from_input_index": 2,
+        "leg_index": 2,
+        "length_km": 6.148445952492528,
+        "length_m": 6148.445952492528,
+        "to_input_index": 3,
+        "travel_time_min": 3.8204766876437097,
+        "travel_time_s": 229.22860125862258
+      },
+      {
+        "from_input_index": 3,
+        "leg_index": 3,
+        "length_km": 4.654382285924969,
+        "length_m": 4654.382285924969,
+        "to_input_index": 4,
+        "travel_time_min": 2.892106258419582,
+        "travel_time_s": 173.5263755051749
+      }
+    ],
+    "mean_bearing_deg": 188.72763531730513,
+    "route_length_km": 24.56043357360206,
+    "route_length_m": 24560.433573602062,
+    "route_node_count": 24,
+    "route_polyline_wkt": "LINESTRING (-96.7178627 30.5511225, -96.7184766 30.5509516, -96.7194255 30.5509125, -96.7202794 30.550874, -96.7211332 30.55086, -96.7226205 30.5509535, -96.7235383 30.5514277, -96.724249 30.551826, -96.725147 30.552207, -96.7262064 30.5525215, -96.7274079 30.553172, -96.729572 30.553664, -96.7299118 30.5536916, -96.7309069 30.5537613, -96.7320351 30.5539651, -96.732722 30.554275, -96.733703 30.554465, -96.734173 30.55448, -96.734391 30.554487, -96.73463 30.554497, -96.738599 30.554669, -96.739358 30.554672, -96.7432992 30.5544742, -96.7441966 30.5544679, -96.7448432 30.5545453, -96.7453642 30.5546773, -96.7458628 30.5548605, -96.7462744 30.5550207, -96.7464446 30.5550732, -96.7469415 30.5552239, -96.7495387 30.5555173, -96.751955 30.555578, -96.753702 30.555899, -96.7548399 30.5561762, -96.7565156 30.5565844, -96.7595023 30.5580221, -96.7624155 30.5595412, -96.7645197 30.5603223, -96.7660536 30.560804, -96.7679661 30.5613969, -96.7690553 30.561715, -96.7698326 30.5618789, -96.770561 30.561793, -96.772149 30.561564, -96.779112 30.560284, -96.784062 30.559208, -96.7851758 30.5588313, -96.78528 30.558796, -96.786917 30.557938, -96.7900133 30.5562217, -96.7930102 30.5546686, -96.7953541 30.5534212, -96.7967262 30.5527298, -96.7996825 30.5512807, -96.802408 30.549957, -96.802434 30.549866, -96.80262 30.549889, -96.804879 30.548735, -96.8102346 30.5458483, -96.820335 30.5404992, -96.827538 30.536891, -96.8299387 30.5355581, -96.836817 30.532095, -96.8387738 30.53109, -96.839062 30.530942, -96.841345 30.529869, -96.846286 30.52755, -96.846868 30.527367, -96.8477873 30.526804, -96.8476472 30.52676, -96.8448522 30.5260378, -96.8433461 30.5256117, -96.8397234 30.5245399, -96.83938 30.5244383, -96.8386344 30.52415, -96.8350706 30.5226339, -96.8345806 30.5224633, -96.8341617 30.5223778, -96.8337661 30.5223433, -96.8333194 30.5223561, -96.83285 30.5224389, -96.8325222 30.5225394, -96.8319867 30.5227828, -96.8295122 30.5240922, -96.8291144 30.5242661, -96.8286972 30.5243872, -96.8283667 30.5244389, -96.8281006 30.5244606, -96.8276261 30.5244461, -96.8273333 30.5244044, -96.827035 30.5243422, -96.82626 30.5241289, -96.8257256 30.5239317, -96.8253867 30.5237606, -96.8250778 30.5235506, -96.8247378 30.5232433, -96.8244461 30.5228956, -96.8225963 30.5203357, -96.8214678 30.5187739, -96.8210539 30.5182389, -96.8207139 30.5178861, -96.820375 30.51761, -96.82002 30.5173761, -96.8195811 30.5171444, -96.819135 30.5169644, -96.818627 30.5168254, -96.8184722 30.5167856, -96.8159772 30.5163133, -96.8134944 30.5158622, -96.8125183 30.515725, -96.8111717 30.5155642, -96.8102061 30.5154489, -96.8092633 30.5153089, -96.8079283 30.5149867, -96.80401 30.5139667, -96.8031672 30.5137322, -96.8025667 30.5135333, -96.7988817 30.5120672, -96.7978811 30.5116828, -96.7968244 30.5113444, -96.7947972 30.5107417, -96.7936322 30.5103411, -96.7925283 30.5099367, -96.7920367 30.5097233, -96.7916522 30.5095144, -96.7912261 30.50922, -96.7909952 30.5090215, -96.790905 30.5089417, -96.7905211 30.5085117, -96.7894511 30.5069417, -96.7891922 30.5066039, -96.7890283 30.5064222, -96.7887144 30.5061333, -96.7885017 30.5059806, -96.7880239 30.5057061, -96.7875794 30.5055228, -96.7871522 30.5054033, -96.78669 30.5053272, -96.785769 30.505224, -96.7823106 30.5049439, -96.781715 30.5048528, -96.781394 30.504785, -96.7812172 30.5047278, -96.7809267 30.5046372, -96.7804411 30.5044533, -96.7787783 30.5037239, -96.7780983 30.5033589, -96.7761506 30.5022267, -96.7756594 30.5019789, -96.7753311 30.5018433, -96.7749844 30.5017206, -96.7745022 30.5015839, -96.7741306 30.5015044, -96.7726594 30.5012494, -96.7690417 30.5006544, -96.768416 30.5005952, -96.7681917 30.5005739, -96.7665861 30.500525, -96.7660767 30.5004761, -96.7656178 30.5004117, -96.7643517 30.5001678, -96.7638954 30.5000714, -96.76207 30.4996856, -96.7619387 30.4996627, -96.761445 30.4995689, -96.7609967 30.4995044, -96.7605889 30.4994767, -96.7599256 30.49948, -96.7580033 30.4996111, -96.7575289 30.4996256, -96.7567411 30.4995711, -96.7563306 30.4995083, -96.756005 30.4994422, -96.75064 30.4981128, -96.7497122 30.4978689, -96.749265 30.497715, -96.748905 30.4975511, -96.74863 30.4973967, -96.7483806 30.4972356, -96.7480667 30.4969967, -96.7478672 30.4968228, -96.747625 30.4965717, -96.7472311 30.4960689, -96.7469644 30.4957894)",
+    "segment_count": 23
+  },
+  "route_metrics": {
+    "length_km": 24.56043357360206,
+    "length_miles": 15.261141170062686,
+    "travel_time_min": 15.816033311123569
+  },
+  "route_name": "FM 908 to CR 316",
+  "snap_summary": [
+    {
+      "input_index": 0,
+      "input_lat": 30.551123,
+      "input_lon": -96.717877,
+      "snap_distance_m": 1.3734479847968006,
+      "snapped_lat": 30.5511225,
+      "snapped_lon": -96.7178627,
+      "snapped_node": 5859770783
+    },
+    {
+      "input_index": 1,
+      "input_lat": 30.554,
+      "input_lon": -96.79427,
+      "snap_distance_m": 122.23373257974414,
+      "snapped_lat": 30.5534212,
+      "snapped_lon": -96.7953541,
+      "snapped_node": 222744698
+    },
+    {
+      "input_index": 2,
+      "input_lat": 30.5268,
+      "input_lon": -96.8477,
+      "snap_distance_m": 8.391192363107463,
+      "snapped_lat": 30.526804,
+      "snapped_lon": -96.8477873,
+      "snapped_node": 222748485
+    },
+    {
+      "input_index": 3,
+      "input_lat": 30.51229,
+      "input_lon": -96.79985,
+      "snap_distance_m": 924.113969311533,
+      "snapped_lat": 30.5090215,
+      "snapped_lon": -96.7909952,
+      "snapped_node": 222747187
+    },
+    {
+      "input_index": 4,
+      "input_lat": 30.4958,
+      "input_lon": -96.74689,
+      "snap_distance_m": 7.239929885534801,
+      "snapped_lat": 30.4957894,
+      "snapped_lon": -96.7469644,
+      "snapped_node": 222777063
+    }
+  ],
+  "turn_restrictions": {
+    "by_restriction": {},
+    "count": null,
+    "error": "HTTPError: 504 Server Error: Gateway Timeout for url: https://overpass-api.de/api/interpreter",
+    "status": "failed"
+  },
+  "waypoint_density_summary": {
+    "avg_density_per_km": 11.443113,
+    "max_density_per_km": 35.564896,
+    "min_density_per_km": 1.761306
+  }
+}

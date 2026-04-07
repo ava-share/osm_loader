@@ -1509,6 +1509,23 @@ def _segment_waypoint_density(
     return point_count, density_per_100m, density_per_km
 
 
+def build_segment_distance_ranges(route_edges_gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
+    enriched = route_edges_gdf.sort_values("segment_id").copy()
+
+    start_distances = []
+    end_distances = []
+
+    cumulative_m = 0.0
+    for _, row in enriched.iterrows():
+        seg_len = float(row.get("segment_length_m", 0.0))
+        start_distances.append(cumulative_m)
+        cumulative_m += seg_len
+        end_distances.append(cumulative_m)
+
+    enriched["segment_start_m"] = start_distances
+    enriched["segment_end_m"] = end_distances
+    return enriched
+
 def build_edge_attributes(
     route_edges_gdf: gpd.GeoDataFrame, points_of_interest: Optional[Dict[str, List[Dict[str, Any]]]] = None
 ) -> List[Dict[str, Any]]:
@@ -1532,6 +1549,9 @@ def build_edge_attributes(
             "from_node": int(row.get("from_node")),
             "to_node": int(row.get("to_node")),
             "segment_length_m": float(row.get("segment_length_m", 0.0)),
+            "segment_start_m": float(row.get("segment_start_m", 0.0)),
+            "segment_end_m": float(row.get("segment_end_m", 0.0)),
+            "segment_geometry_wkt": (row.geometry.wkt if row.geometry is not None else None),
             "bearing_deg": (None if pd.isna(bearing_deg) else bearing_deg),
             "curvature_deg": (None if pd.isna(curvature_deg) else curvature_deg),
             "curvature_class": row.get("curvature_class"),
@@ -2024,6 +2044,7 @@ def main(
     build_result = build_route(start=start, middle=middle, end=end, network_type="drive")
     route_edges = extract_route_edges(build_result.graph, build_result.route_nodes, weight_for_parallel_edges="length")
     route_edges = enrich_route_edges_with_curvature(route_edges)
+    route_edges = build_segment_distance_ranges(route_edges)
     route_line = get_route_geometry(route_edges)
 
     corridor_features, corridor_wgs84, corridor_proj, proj_crs = query_corridor_features(
