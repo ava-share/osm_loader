@@ -405,10 +405,10 @@ def get_segment_by_id(segment_id, edge_attributes):
     return None
 
 
-with open("output/US_190_to_FM_2038_to_FM_244.json", "r") as f:
+with open("output/FM_1362_to_FM_2000.json", "r") as f:
     route_data = json.load(f)
 
-odom_df = pd.read_csv("rosbag_perception_output_planning_2025-09-30_11-36-38_2025-09-30-11-41-54_1_novatel_odom_data.csv")
+odom_df = pd.read_csv("combined_novatel_odom_data.csv")
 
 edge_attributes = route_data["edge_attributes"]
 intersection_details = route_data["intersection_details"]

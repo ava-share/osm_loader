@@ -1,0 +1,88 @@
+capture_directory: "~"
+fixed_frame: map
+target_frame: <none>
+fix_orientation: false
+rotate_90: false
+enable_antialiasing: true
+show_displays: true
+show_status_bar: true
+show_capture_tools: true
+window_width: 1440
+window_height: 600
+view_scale: 3.62077165
+offset_x: -1193.04541
+offset_y: 4277.67871
+use_latest_transforms: true
+background: "#a0a0a4"
+image_transport: raw
+displays:
+  - type: mapviz_plugins/grid
+    name: new display
+    config:
+      visible: true
+      collapsed: false
+      color: "#ff0000"
+      alpha: 0.98999999999999999
+      frame: ""
+      x: 0
+      y: 2
+      size: 0
+      rows: 3
+      columns: 1
+  - type: mapviz_plugins/path
+    name: new display
+    config:
+      visible: true
+      collapsed: false
+      topic: /osm_route_path
+      color: "#00ff00"
+      qos_depth: 10
+      qos_history: 1
+      qos_reliability: 1
+      qos_durability: 2
+  - type: mapviz_plugins/odometry
+    name: new display
+    config:
+      visible: true
+      collapsed: false
+      topic: /vehicle/odom
+      color: "#ff7800"
+      draw_style: points
+      position_tolerance: 1
+      buffer_size: 0
+      show_laps: false
+      show_covariance: false
+      show_all_covariances: false
+      static_arrow_sizes: false
+      arrow_size: 85
+      show_timestamps: 0
+      qos_depth: 10
+      qos_history: 1
+      qos_reliability: 1
+      qos_durability: 2
+  - type: mapviz_plugins/marker
+    name: new display
+    config:
+      visible: true
+      collapsed: false
+      topic: /osm_route_markers
+      qos_depth: 10
+      qos_history: 1
+      qos_reliability: 1
+      qos_durability: 2
+  - type: mapviz_plugins/string
+    name: new display
+    config:
+      visible: true
+      collapsed: false
+      font: Ubuntu,9,-1,5,50,0,0,0,0,0
+      color: "#000000"
+      topic: /driver_alert_text
+      anchor: top left
+      units: pixels
+      offset_x: 0
+      offset_y: 0
+      qos_depth: 10
+      qos_history: 1
+      qos_reliability: 1
+      qos_durability: 2
