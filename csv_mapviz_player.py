@@ -81,7 +81,6 @@ class CsvMapvizPlayer(Node):
         self.index = 0
 
         self.create_timer(1.0, self.publish_static_layers)
-        self.create_timer(0.1, self.publish_vehicle)
 
     def build_path_msg(self):
         msg = Path()
@@ -179,6 +178,9 @@ def main(args=None):
     rclpy.init(args=args)
     node = CsvMapvizPlayer()
     try:
+        while rclpy.ok() and node.index < len(node.odom_df):
+            node.publish_vehicle()
+            rclpy.spin_once(node, timeout_sec=0.0)
         rclpy.spin(node)
     except KeyboardInterrupt:
         pass
