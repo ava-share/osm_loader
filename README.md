@@ -392,7 +392,7 @@ Important fields:
 
 ---
 
-## Technologies
+## Librearies
 
 | Library / Tool | Purpose |
 |----------------|---------|
