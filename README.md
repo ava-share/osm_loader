@@ -392,7 +392,7 @@ Important fields:
 
 ---
 
-## Libraries
+## Libraries required
 
 | Library / Tool | Purpose |
 |----------------|---------|
@@ -477,45 +477,24 @@ output/FM_1362_to_FM_2000_map.html
 
 ## How to Run the Driver Assistance System
 
-### Option 1: Launch both ROS2 nodes
+Open two terminals.
+
+**Terminal 1 — Mapviz:**
+
+```bash
+ros2 run mapviz mapviz
+```
+
+**Terminal 2 — Driver assistance node:**
 
 ```bash
 source /opt/ros/humble/setup.bash
 source install/setup.bash
 
-ros2 launch driver_assistant driver_assistant_launch.py \
-  route_file:=/absolute/path/to/osm_loader/output/FM_1362_to_FM_2000.json \
-  odom_csv:=/absolute/path/to/osm_loader/combined_novatel_odom_data.csv \
-  publish_rate_hz:=10.0
+ros2 run driver_assistant driver_assistant_node
 ```
 
-This starts:
-
-- `driver_assistant_node`
-- `csv_mapviz_player`
-
-### Option 2: Run only the main driver-assistance node
-
-```bash
-ros2 run driver_assistant driver_assistant_node \
-  --ros-args \
-  -p route_file:=/absolute/path/to/osm_loader/output/FM_1362_to_FM_2000.json \
-  -p odom_csv:=/absolute/path/to/osm_loader/combined_novatel_odom_data.csv
-```
-
-This runs the Tkinter driver GUI and publishes ROS2 visualization topics.
-
-### Option 3: Run only the CSV Mapviz player
-
-```bash
-ros2 run driver_assistant csv_mapviz_player \
-  --ros-args \
-  -p route_file:=/absolute/path/to/osm_loader/output/FM_1362_to_FM_2000.json \
-  -p odom_csv:=/absolute/path/to/osm_loader/combined_novatel_odom_data.csv \
-  -p publish_rate_hz:=10.0
-```
-
-This is useful when only route, marker, vehicle, and alert topic playback is needed.
+This opens the driver GUI, matches vehicle position to the OSM route, displays alerts, and publishes all ROS2 visualization topics to Mapviz.
 
 ---
 
