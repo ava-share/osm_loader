@@ -595,4 +595,4 @@ The main contribution is the connection between:
 - driver-facing alert logic
 - ROS2 topic publishing for visualization
 
-This makes the OSM data usable not only as an offline map-analysis output, but also as a live-style driver-assistance input that can be connected to vehicle odometry, Mapviz, and future autonomous-driving modules.
+This makes the OSM data usable not only as an offline map-analysis output, but also as driver-assistance input that can be connected to vehicle odometry, Mapviz, and future autonomous-driving modules.
