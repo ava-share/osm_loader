@@ -556,16 +556,6 @@ These are the same routes used to generate the included JSON, CAV JSON, and HTML
 
 ---
 
-## Notes and Assumptions
-
-- The driver-assistance system depends on route JSON files that include segment geometry and cumulative segment distance fields.
-- The odometry CSV must use a compatible projected coordinate frame with the projected route geometry.
-- If `/vehicle/odom` publishes but the vehicle is not visible in Mapviz, check the fixed frame and display settings first.
-- If the snap distance is large, check coordinate-frame alignment between the odometry CSV and OSM route projection.
-- Inferred speeds and lanes are displayed separately from OSM-provided values so the user can distinguish measured map data from estimated data.
-- The system is intended as a research prototype for OSM-based driver assistance and AV/CAV context extraction, not as a production safety system.
-
----
 
 ## Typical Workflow
 
