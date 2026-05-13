@@ -497,23 +497,6 @@ ros2 run driver_assistant driver_assistant_node
 This opens the driver GUI, matches vehicle position to the OSM route, displays alerts, and publishes all ROS2 visualization topics to Mapviz.
 
 ---
-
-## How to Visualize in Mapviz
-
-Start the driver-assistance launch file first:
-
-```bash
-ros2 launch driver_assistant driver_assistant_launch.py \
-  route_file:=/absolute/path/to/osm_loader/output/FM_1362_to_FM_2000.json \
-  odom_csv:=/absolute/path/to/osm_loader/combined_novatel_odom_data.csv
-```
-
-Then start Mapviz:
-
-```bash
-ros2 run mapviz mapviz
-```
-
 Add displays for:
 
 | Mapviz Display | Topic |
